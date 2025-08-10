@@ -344,12 +344,12 @@ export default function TaskModal({ task, isOpen, onClose }) {
           </div>
         )}
 
-        <DialogFooter className="flex items-end justify-between">
+        <DialogFooter className="">
           {isRescheduling ? null : isEditing ? (
             <>
-              <Button variant="destructive" onClick={handleDelete}>
+              {/* <Button variant="destructive" onClick={handleDelete}>
                 Delete
-              </Button>
+              </Button> */}
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
@@ -358,24 +358,22 @@ export default function TaskModal({ task, isOpen, onClose }) {
               </div>
             </>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse md:flex-row justify-between w-full gap-2">
               <Button variant="destructive" onClick={handleDelete}>
                 Delete
               </Button>
-              <div className="flex flex-col sm:flex-row gap-2 w-full">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsRescheduling(true)}
-                  >
-                    <CalendarDays className="mr-2 h-4 w-4" />
-                    Reschedule
-                  </Button>
-                  {/* <Button variant="outline" onClick={onClose}>
+              <div className="flex justify-between md:justify-normal gap-2 w-full md:w-auto">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsRescheduling(true)}
+                >
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                  Reschedule
+                </Button>
+                {/* <Button variant="outline" onClick={onClose}>
                     Close
                   </Button> */}
-                  <Button onClick={() => setIsEditing(true)}>Edit</Button>
-                </div>
+                <Button onClick={() => setIsEditing(true)}>Edit</Button>
               </div>
             </div>
           )}
