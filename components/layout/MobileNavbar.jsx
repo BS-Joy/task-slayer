@@ -64,7 +64,7 @@ export default function MobileNavbar() {
       <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
         <div className="flex h-16 items-center justify-around px-4">
           <Button
-            variant={pathname === "/" ? "default" : "ghost"}
+            variant="ghost"
             size="icon"
             className="h-12 w-12 rounded-full"
             onClick={() => router.push("/")}

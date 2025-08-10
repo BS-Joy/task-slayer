@@ -98,7 +98,7 @@ export default function TaskItem({ task, onTaskClick }) {
             {task.timeStart} - {task.timeEnd}
             {task.isRepetitive && (
               <Badge variant="outline" className="ml-2 text-xs">
-                {/* Repetitive */}
+                Repetitive
                 <Repeat />
               </Badge>
             )}

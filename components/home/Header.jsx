@@ -9,25 +9,38 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, ListTodo, Plus } from "lucide-react";
 import Image from "next/image";
 import pagperSword from "@/public/swordpaper.png";
 
 const Header = ({ date, setDate }) => {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const handleDateSelect = (selectedDate) => {
+    setDate(selectedDate);
+    if (selectedDate) setPopoverOpen(false);
+  };
+
   return (
     <header className="flex justify-between items-center mb-6 mt-14 md:mt-0">
       <div className="flex items-center gap-2">
-        <Image
+        {/* <Image
           src={pagperSword}
           // className="rotate-90"
           alt="pager sword"
           width={20}
           height={10}
-        />
-        <h1 className="text-2xl font-bold font-trajan-pro">Tasks To Slay:</h1>
+        /> */}
+        {/* <ListTodo size="44px" /> */}
+        <span className="rotate-[225deg] text-lg md:text-2xl relative bottom-1">
+          🗡️
+        </span>
+        <h1 className="text-lg md:text-2xl font-bold font-trajan-pro">
+          Tasks To Slay:
+        </h1>
       </div>
 
-      <Popover>
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -35,6 +48,7 @@ const Header = ({ date, setDate }) => {
               "justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
+            onClick={() => setPopoverOpen(true)}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -44,7 +58,7 @@ const Header = ({ date, setDate }) => {
           <Calendar
             mode="single"
             selected={date}
-            onSelect={setDate}
+            onSelect={handleDateSelect}
             initialFocus
           />
         </PopoverContent>

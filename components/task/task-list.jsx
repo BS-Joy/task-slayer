@@ -23,7 +23,7 @@ export default function TaskList({ selectedDate }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-h-[540px] lg:max-h-[680px] overflow-y-auto task-lists">
       {tasks.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">

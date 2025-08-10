@@ -33,6 +33,9 @@ import { cn } from "@/lib/utils";
 
 export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   const { addTask } = useTaskStore(); // Corrected: addTask is now destructured here
+
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  const [repetitionPopoverOpen, setRepetitionPopoverOpen] = useState(false);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -150,7 +153,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
 
             <div className="grid gap-2">
               <Label>Date</Label>
-              <Popover>
+              <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -158,6 +161,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                       "justify-start text-left font-normal",
                       !newTask.date && "text-muted-foreground"
                     )}
+                    onClick={() => setDatePopoverOpen(true)}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {newTask.date ? (
@@ -171,7 +175,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                   <Calendar
                     mode="single"
                     selected={newTask.date}
-                    onSelect={(date) => handleChange("date", date)}
+                    onSelect={(date) => {
+                      handleChange("date", date);
+                      if (date) setDatePopoverOpen(false);
+                    }}
                     initialFocus
                   />
                 </PopoverContent>
@@ -210,7 +217,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
           {newTask.isRepetitive && (
             <div className="grid gap-2">
               <Label>Repetition End Date</Label>
-              <Popover>
+              <Popover
+                open={repetitionPopoverOpen}
+                onOpenChange={setRepetitionPopoverOpen}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -218,6 +228,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                       "justify-start text-left font-normal",
                       !newTask.repetitionEndDate && "text-muted-foreground"
                     )}
+                    onClick={() => setRepetitionPopoverOpen(true)}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {newTask.repetitionEndDate ? (
@@ -235,7 +246,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                         ? new Date(newTask.repetitionEndDate)
                         : null
                     }
-                    onSelect={(date) => handleChange("repetitionEndDate", date)}
+                    onSelect={(date) => {
+                      handleChange("repetitionEndDate", date);
+                      if (date) setRepetitionPopoverOpen(false);
+                    }}
                     initialFocus
                   />
                 </PopoverContent>

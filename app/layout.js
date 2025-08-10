@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
         >
           <div className="relative min-h-screen flex flex-col">
             <Navbar />
-            <div className="pb-16 md:pb-0 container mx-auto justify-center px-4">
+            <div className="md:pb-0 container mx-auto justify-center px-4">
               {children}
             </div>
             <MobileNavbar />
