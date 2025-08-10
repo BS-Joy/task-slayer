@@ -175,6 +175,18 @@
   }
 }
 
+/* text selection color (works in modern browsers) */
+.ProseMirror ::selection {
+  background: var(--primary); /* highlight background */
+  color: #ffffff; /* text color when selected */
+}
+
+/* Firefox selection */
+.ProseMirror ::-moz-selection {
+  background: var(--primary);
+  color: #fffefe;
+}
+
 .task-lists::-webkit-scrollbar {
   display: none;
 }

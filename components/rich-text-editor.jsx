@@ -415,9 +415,9 @@ export default function RichTextEditor({
         }
 
         /* Selection styles */
-        .ProseMirror ::selection {
-          background: hsl(var(--accent));
-        }
+        // .ProseMirror ::selection {
+        //   background: hsl(var(--primary));
+        // }
 
         /* Placeholder styles */
         .ProseMirror[data-placeholder]:empty::before {
