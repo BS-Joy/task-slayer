@@ -22,7 +22,7 @@ const Header = ({ date, setDate }) => {
   };
 
   return (
-    <header className="flex justify-between items-center mb-6 mt-14 md:mt-0">
+    <header className="flex flex-col-reverse gap-2 mb-3 md:flex-row md:justify-between items-center md:mb-6 mt-14 md:mt-0">
       <div className="flex items-center gap-2">
         {/* <Image
           src={pagperSword}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { Clock, Flag, AlertCircle, Repeat } from "lucide-react";
+import { Clock, Flag, AlertCircle, Repeat, CalendarSync } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useTaskStore } from "@/lib/task-store";
@@ -54,7 +54,7 @@ export default function TaskItem({ task, onTaskClick }) {
 
   return (
     <div
-      className={`border rounded-lg p-4 transition-all duration-200 hover:shadow-md task-item ${
+      className={`border rounded-lg p-4 transition-all duration-200 hover:shadow-md task-item relative overflow-hidden ${
         checked ? "bg-muted" : "bg-card"
       }`}
     >
@@ -77,7 +77,11 @@ export default function TaskItem({ task, onTaskClick }) {
             >
               {task.title}
             </h3>
-            <Badge className={`${getPriorityColor(task.priority)} text-white`}>
+            <Badge
+              className={`${getPriorityColor(
+                task.priority
+              )} text-white absolute top-0 right-0 px-1 py-0 md:relative`}
+            >
               <Flag className="mr-1 h-3 w-3" />
               {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
             </Badge>
@@ -93,12 +97,14 @@ export default function TaskItem({ task, onTaskClick }) {
             </p>
           )} */}
 
-          <div className="flex items-center text-sm text-muted-foreground mt-2">
-            <Clock className="mr-1 h-3 w-3" />
-            {task.timeStart} - {task.timeEnd}
+          <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
+            <div className="flex items-center">
+              <Clock className="mr-1 h-3 w-3" />
+              {task.timeStart} - {task.timeEnd}
+            </div>
             {task.isRepetitive && (
               <Badge variant="outline" className="ml-2 text-xs">
-                Repetitive
+                <span className="hidden md:inline">Repetitive</span>
                 <Repeat />
               </Badge>
             )}
@@ -107,31 +113,34 @@ export default function TaskItem({ task, onTaskClick }) {
                 variant="outline"
                 className="ml-2 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700"
               >
-                <AlertCircle className="mr-1 h-3 w-3" />
-                Rescheduled from{" "}
-                {(() => {
-                  try {
-                    // Handle both string dates and already parsed dates
-                    const dateToFormat =
-                      typeof task.originalDueDate === "string"
-                        ? parseISO(task.originalDueDate)
-                        : new Date(task.originalDueDate);
+                <CalendarSync className="block md:hidden" />
+                <div className="hidden md:flex items-center">
+                  <AlertCircle className="mr-1 h-3 w-3" />
+                  Rescheduled from{" "}
+                  {(() => {
+                    try {
+                      // Handle both string dates and already parsed dates
+                      const dateToFormat =
+                        typeof task.originalDueDate === "string"
+                          ? parseISO(task.originalDueDate)
+                          : new Date(task.originalDueDate);
 
-                    // Check if the date is valid
-                    if (isNaN(dateToFormat.getTime())) {
+                      // Check if the date is valid
+                      if (isNaN(dateToFormat.getTime())) {
+                        return "previous date";
+                      }
+
+                      return format(dateToFormat, "MMM d");
+                    } catch (error) {
+                      console.warn(
+                        "Error parsing originalDueDate:",
+                        task.originalDueDate,
+                        error
+                      );
                       return "previous date";
                     }
-
-                    return format(dateToFormat, "MMM d");
-                  } catch (error) {
-                    console.warn(
-                      "Error parsing originalDueDate:",
-                      task.originalDueDate,
-                      error
-                    );
-                    return "previous date";
-                  }
-                })()}
+                  })()}
+                </div>
               </Badge>
             )}
           </div>
