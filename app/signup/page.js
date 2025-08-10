@@ -1,6 +1,4 @@
 import { SignupForm } from "@/components/signup/signup-form";
-import Image from "next/image";
-import logo from "@/public/logo.png";
 
 const Page = () => {
   return (

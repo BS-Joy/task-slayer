@@ -1,14 +1,18 @@
-import { Work_Sans, Almendra_SC } from "next/font/google";
 import localFont from "next/font/local";
+import { Work_Sans } from "next/font/google";
+
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import MobileNavbar from "@/components/layout/MobileNavbar";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 const workSans = Work_Sans({
   variable: "--font-work-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const trajanPro = localFont({
@@ -22,7 +26,12 @@ export const metadata = {
   description: "Slay your tasks with Task Slayer",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const supaBase = await createClient();
+
+  const { data, error } = await supaBase.auth.getUser();
+
+  // console.log(data?.user);
   return (
     <html lang="en">
       <body
@@ -36,7 +45,7 @@ export default function RootLayout({ children }) {
           storageKey="todos-theme-preference"
         >
           <div className="relative min-h-screen flex flex-col">
-            <Navbar />
+            <Navbar user={data?.user} />
             <div className="md:pb-0 container mx-auto justify-center px-4">
               {children}
             </div>

@@ -15,15 +15,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import ThemeSwitcher from "@/components/theme-switcher";
-import Image from "next/image";
 
 import ProfileModal from "../profile/profile-modal";
 import Logo from "../Logo";
 
-export default function Navbar() {
+export default function Navbar({ user }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  console.log(user);
 
   useEffect(() => {
     const checkMobile = () => {

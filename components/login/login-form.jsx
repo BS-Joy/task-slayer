@@ -1,12 +1,37 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { login } from "@/app/actions/auth/authActions";
+import { useState } from "react";
+import ButtonLoader from "../ButtonLoader";
 
 export function LoginForm({ className, ...props }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // setError("");
+    setLoading(true);
+
+    const formData = new FormData(e.target);
+
+    const res = await login(formData);
+
+    if (res?.user?.id) {
+      setLoading(false);
+      redirect("/");
+    }
+  };
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-[22px] font-bold font-trajan-pro">
           Login to your account
@@ -18,22 +43,28 @@ export function LoginForm({ className, ...props }) {
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+          />
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <a
+            <Link
               href="#"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
-          <Input id="password" type="password" required />
+          <Input id="password" name="password" type="password" required />
         </div>
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? <ButtonLoader /> : "Login"}
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">
