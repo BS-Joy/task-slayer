@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import RichTextEditor from "@/components/rich-text-editor";
 import { useTaskStore } from "@/lib/task-store";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "../ui/checkbox";
 
 export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   const { addTask } = useTaskStore(); // Corrected: addTask is now destructured here
@@ -47,6 +48,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     isRepetitive: type === "repetitive", // Initial value based on prop
     repetitionEndDate: type === "repetitive" ? null : undefined, // Initial value based on prop
   });
+  const [includeTime, setIncludeTime] = useState(false);
 
   // Update isRepetitive and repetitionEndDate when the 'type' prop changes
   useEffect(() => {
@@ -77,6 +79,8 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       ...newTask,
       id: Date.now().toString(),
       date: format(newTask.date, "yyyy-MM-dd"),
+      timeStart: includeTime ? newTask.timeStart : null,
+      timeEnd: includeTime ? newTask.timeEnd : null,
       // Ensure repetitionEndDate is formatted correctly for storage, only if it's a repetitive task
       repetitionEndDate:
         newTask.isRepetitive && newTask.repetitionEndDate
@@ -96,6 +100,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       isRepetitive: type === "repetitive", // Reset based on current type prop
       repetitionEndDate: type === "repetitive" ? null : undefined, // Reset based on current type prop
     });
+    setIncludeTime(false);
     onClose();
   };
 
@@ -134,6 +139,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* priority */}
             <div className="grid gap-2">
               <Label>Priority</Label>
               <Select
@@ -151,6 +157,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
               </Select>
             </div>
 
+            {/* date */}
             <div className="grid gap-2">
               <Label>Date</Label>
               <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
@@ -186,33 +193,50 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="timeStart">Start Time</Label>
-              <div className="flex items-center">
-                {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
-                <Input
-                  id="timeStart"
-                  type="time"
-                  value={newTask.timeStart}
-                  onChange={(e) => handleChange("timeStart", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="timeEnd">End Time</Label>
-              <div className="flex items-center">
-                {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
-                <Input
-                  id="timeEnd"
-                  type="time"
-                  value={newTask.timeEnd}
-                  onChange={(e) => handleChange("timeEnd", e.target.value)}
-                />
-              </div>
-            </div>
+          {/* New: Include Time Toggle */}
+          <div className="flex items-center space-x-2 mt-2">
+            <Checkbox
+              id="includeTime"
+              checked={includeTime}
+              onCheckedChange={setIncludeTime}
+            />
+            <Label
+              htmlFor="includeTime"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Include Time
+            </Label>
           </div>
+
+          {includeTime && ( // Conditionally render time inputs
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="timeStart">Start Time</Label>
+                <div className="flex items-center">
+                  <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="timeStart"
+                    type="time"
+                    value={newTask.timeStart}
+                    onChange={(e) => handleChange("timeStart", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="timeEnd">End Time</Label>
+                <div className="flex items-center">
+                  <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="timeEnd"
+                    type="time"
+                    value={newTask.timeEnd}
+                    onChange={(e) => handleChange("timeEnd", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {newTask.isRepetitive && (
             <div className="grid gap-2">

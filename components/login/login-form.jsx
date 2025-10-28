@@ -7,9 +7,13 @@ import Link from "next/link";
 import { login } from "@/app/actions/auth/authActions";
 import { useState } from "react";
 import ButtonLoader from "../ButtonLoader";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className, ...props }) {
   const [loading, setLoading] = useState(false);
+  const [errormsg, setErrormsg] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,9 +25,15 @@ export function LoginForm({ className, ...props }) {
 
     const res = await login(formData);
 
+    console.log("In login form page: ", res);
+
     if (res?.user?.id) {
       setLoading(false);
-      redirect("/");
+      router.push("/");
+    } else if (res?.__isAuthError) {
+      console.log(res?.status);
+      setErrormsg(res.message);
+      setLoading(false);
     }
   };
   return (

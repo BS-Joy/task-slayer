@@ -49,6 +49,19 @@ export function SignupForm({ className, ...props }) {
         </p>
       </div>
       <div className="grid gap-6">
+        {/* name field */}
+        <div className="grid gap-3">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="John Doe"
+            required
+          />
+        </div>
+
+        {/* email field */}
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -59,6 +72,8 @@ export function SignupForm({ className, ...props }) {
             required
           />
         </div>
+
+        {/* password field */}
         <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
           <Input
@@ -70,6 +85,8 @@ export function SignupForm({ className, ...props }) {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+
+        {/* confirm password field */}
         <div className="grid gap-3">
           <Label htmlFor="confirm-password">Confirm Password</Label>
           <Input

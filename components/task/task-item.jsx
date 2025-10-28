@@ -99,8 +99,14 @@ export default function TaskItem({ task, onTaskClick }) {
 
           <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
             <div className="flex items-center">
-              <Clock className="mr-1 h-3 w-3" />
-              {task.timeStart} - {task.timeEnd}
+              {task.timeStart ? (
+                <>
+                  <Clock className="mr-1 h-3 w-3" />
+                  {task.timeStart} - {task.timeEnd}
+                </>
+              ) : (
+                ""
+              )}
             </div>
             {task.isRepetitive && (
               <Badge variant="outline" className="ml-2 text-xs">

@@ -18,13 +18,13 @@ import ThemeSwitcher from "@/components/theme-switcher";
 
 import ProfileModal from "../profile/profile-modal";
 import Logo from "../Logo";
+import { createClient } from "@/utils/supabase/client";
+import { id } from "date-fns/locale";
 
 export default function Navbar({ user }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
-  console.log(user);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -35,8 +35,14 @@ export default function Navbar({ user }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // In a real app, you would handle logout logic here
+    const supaBase = await createClient();
+    const { error } = await supaBase.auth.signOut();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Logged out successfully");
     router.push("/");
   };
@@ -92,6 +98,7 @@ export default function Navbar({ user }) {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         onLogout={handleLogout}
+        user={{ id: user?.id, ...user?.user_metadata }}
       />
     </>
   );

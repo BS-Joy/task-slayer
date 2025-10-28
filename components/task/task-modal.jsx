@@ -234,6 +234,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
               </div>
             </div>
 
+            {/* time */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="timeStart">Start Time</Label>
@@ -242,7 +243,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
                   <Input
                     id="timeStart"
                     type="time"
-                    value={editedTask.timeStart}
+                    value={editedTask.timeStart || ""}
                     onChange={(e) => handleChange("timeStart", e.target.value)}
                     disabled={!isEditing}
                   />
@@ -256,7 +257,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
                   <Input
                     id="timeEnd"
                     type="time"
-                    value={editedTask.timeEnd}
+                    value={editedTask.timeEnd || ""}
                     onChange={(e) => handleChange("timeEnd", e.target.value)}
                     disabled={!isEditing}
                   />

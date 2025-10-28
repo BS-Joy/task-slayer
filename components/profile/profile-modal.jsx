@@ -17,14 +17,16 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
-export default function ProfileModal({ isOpen, onClose, onLogout }) {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
+export default function ProfileModal({ isOpen, onClose, onLogout, user }) {
+  const [name, setName] = useState(user?.name || "not found");
+  const [email, setEmail] = useState(user?.email || "not found");
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [tempImageUrl, setTempImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUrlInput, setShowImageUrlInput] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  console.log("In profile modal: ", user);
 
   const handleSave = () => {
     // In a real app, you would save to a backend
@@ -226,8 +228,8 @@ export default function ProfileModal({ isOpen, onClose, onLogout }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={!isEditing}
-                  className={!isEditing ? "bg-muted/50" : ""}
+                  disabled
+                  // className={!isEditing ? "bg-muted/50" : ""}
                 />
               </div>
             </div>
