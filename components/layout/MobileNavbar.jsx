@@ -17,9 +17,10 @@ import ProfileModal from "../profile/profile-modal";
 import ThemeSwitcher from "../theme-switcher";
 import Logo from "../Logo";
 
-export default function MobileNavbar() {
+export default function MobileNavbar({ userData }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [user, setUser] = useState(userData);
   const [isMobile, setIsMobile] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -112,6 +113,8 @@ export default function MobileNavbar() {
       />
 
       <ProfileModal
+        user={{ id: user?.id, ...user?.user_metadata }}
+        setUser={setUser}
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         onLogout={handleLogout}

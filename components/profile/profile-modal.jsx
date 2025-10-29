@@ -16,28 +16,50 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
+import ButtonLoader from "../ButtonLoader";
 
-export default function ProfileModal({ isOpen, onClose, onLogout, user }) {
+export default function ProfileModal({
+  isOpen,
+  onClose,
+  onLogout,
+  user,
+  setUser,
+}) {
   const [name, setName] = useState(user?.name || "not found");
   const [email, setEmail] = useState(user?.email || "not found");
-  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState(
+    user?.profile_image || ""
+  );
   const [tempImageUrl, setTempImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUrlInput, setShowImageUrlInput] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  console.log("In profile modal: ", user);
+  const handleSave = async () => {
+    setLoading(true);
+    const supabase = await createClient();
 
-  const handleSave = () => {
-    // In a real app, you would save to a backend
-    setIsEditing(false);
-    setShowImageUrlInput(false);
-    toast.success("Profile updated successfully");
+    const { data, error } = await supabase.auth.updateUser({
+      data: { name, profile_image: profileImageUrl },
+    });
+
+    if (data?.user?.id) {
+      setLoading(false);
+      setUser(data?.user);
+      setIsEditing(false);
+      setShowImageUrlInput(false);
+      toast.success("Profile updated successfully");
+    } else {
+      toast.error(error?.message || "Failed to update profile");
+    }
   };
 
   const handleCancel = () => {
     // Reset to original values in a real app
     setTempImageUrl(profileImageUrl);
+    setName(user?.name);
     setIsEditing(false);
     setShowImageUrlInput(false);
     setImageError(false);
@@ -67,10 +89,10 @@ export default function ProfileModal({ isOpen, onClose, onLogout, user }) {
       try {
         new URL(tempImageUrl);
 
-        console.log(tempImageUrl);
+        // console.log(tempImageUrl);
         setProfileImageUrl(tempImageUrl);
         setShowImageUrlInput(false);
-        toast.success("Profile picture updated");
+        // toast.success("Profile picture updated");
       } catch {
         toast.error("Please enter a valid image URL");
       }
@@ -111,18 +133,19 @@ export default function ProfileModal({ isOpen, onClose, onLogout, user }) {
           {/* Avatar Section */}
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
-              <Avatar className="h-20 w-20">
+              <Avatar className="h-20 w-20" key={profileImageUrl ?? "no-img"}>
                 {profileImageUrl && !imageError ? (
                   <AvatarImage
-                    src={profileImageUrl || "/placeholder.svg"}
+                    src={profileImageUrl}
                     alt="Profile"
                     onError={handleImageError}
                     onLoad={handleImageLoad}
                   />
-                ) : null}
-                <AvatarFallback className="text-lg">
-                  {getInitials()}
-                </AvatarFallback>
+                ) : (
+                  <AvatarFallback className="text-lg border">
+                    {getInitials()}
+                  </AvatarFallback>
+                )}
               </Avatar>
             </div>
 
@@ -227,7 +250,7 @@ export default function ProfileModal({ isOpen, onClose, onLogout, user }) {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  // onChange={(e) => setEmail(e.target.value)}
                   disabled
                   // className={!isEditing ? "bg-muted/50" : ""}
                 />
@@ -248,8 +271,12 @@ export default function ProfileModal({ isOpen, onClose, onLogout, user }) {
               >
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={handleSave}>
-                Save Changes
+              <Button
+                className="flex-1"
+                disabled={loading}
+                onClick={handleSave}
+              >
+                {loading ? <ButtonLoader /> : "Save Changes"}
               </Button>
             </div>
           ) : (

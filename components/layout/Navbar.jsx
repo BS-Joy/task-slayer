@@ -21,7 +21,8 @@ import Logo from "../Logo";
 import { createClient } from "@/utils/supabase/client";
 import { id } from "date-fns/locale";
 
-export default function Navbar({ user }) {
+export default function Navbar({ userData }) {
+  const [user, setUser] = useState(userData);
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -51,6 +52,14 @@ export default function Navbar({ user }) {
     setIsProfileModalOpen(true);
   };
 
+  const getInitials = () => {
+    return user?.user_metadata?.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
   // Hide on mobile screens - mobile navbar is shown instead
   if (isMobile) return null;
 
@@ -69,10 +78,13 @@ export default function Navbar({ user }) {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src="/placeholder.svg?height=32&width=32"
-                      alt="User"
+                      src={
+                        user?.user_metadata?.profile_image ||
+                        "/placeholder.svg?height=32&width=32"
+                      }
+                      alt="PP"
                     />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarFallback>{getInitials()}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -99,6 +111,7 @@ export default function Navbar({ user }) {
         onClose={() => setIsProfileModalOpen(false)}
         onLogout={handleLogout}
         user={{ id: user?.id, ...user?.user_metadata }}
+        setUser={setUser}
       />
     </>
   );
