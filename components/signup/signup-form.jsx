@@ -8,12 +8,15 @@ import Link from "next/link";
 import { signup } from "@/app/actions/auth/authActions";
 import { redirect } from "next/navigation";
 import ButtonLoader from "../ButtonLoader";
+import { Eye, EyeOff } from "lucide-react";
 
 export function SignupForm({ className, ...props }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,26 +79,62 @@ export function SignupForm({ className, ...props }) {
         {/* password field */}
         <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            name="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              required
+              placeholder="******"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {showPassword ? (
+              <span
+                className="absolute text-primary right-2 top-2 cursor-pointer"
+                onClick={() => setShowPassword(false)}
+              >
+                <EyeOff size={20} />
+              </span>
+            ) : (
+              <span
+                className="absolute text-primary right-2 top-2 cursor-pointer"
+                onClick={() => setShowPassword(true)}
+              >
+                <Eye size={20} />
+              </span>
+            )}
+          </div>
         </div>
 
         {/* confirm password field */}
         <div className="grid gap-3">
           <Label htmlFor="confirm-password">Confirm Password</Label>
-          <Input
-            id="confirm-password"
-            type="password"
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              id="confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              required
+              placeholder="******"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            {showConfirmPassword ? (
+              <span
+                className="absolute text-primary right-2 top-2 cursor-pointer"
+                onClick={() => setShowConfirmPassword(false)}
+              >
+                <EyeOff size={20} />
+              </span>
+            ) : (
+              <span
+                className="absolute text-primary right-2 top-2 cursor-pointer"
+                onClick={() => setShowConfirmPassword(true)}
+              >
+                <Eye size={20} />
+              </span>
+            )}
+          </div>
         </div>
         {error && (
           <div className="text-red-500 text-sm text-center">{error}</div>

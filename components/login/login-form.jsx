@@ -8,10 +8,13 @@ import { login } from "@/app/actions/auth/authActions";
 import { useState } from "react";
 import ButtonLoader from "../ButtonLoader";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 export function LoginForm({ className, ...props }) {
   const [loading, setLoading] = useState(false);
-  const [errormsg, setErrormsg] = useState("");
+  // const [errormsg, setErrormsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -30,10 +33,9 @@ export function LoginForm({ className, ...props }) {
     if (res?.user?.id) {
       setLoading(false);
       router.push("/");
-    } else if (res?.__isAuthError) {
-      console.log(res?.status);
-      setErrormsg(res.message);
+    } else if (res?.isAuthError) {
       setLoading(false);
+      toast.error(res?.message || "Authentication error");
     }
   };
   return (
@@ -64,15 +66,39 @@ export function LoginForm({ className, ...props }) {
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <Link
+            {/* <Link
               href="#"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Forgot your password?
-            </Link>
+            </Link> */}
           </div>
-          <Input id="password" name="password" type="password" required />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              placeholder="******"
+              type={showPassword ? "text" : "password"}
+              required
+            />
+            {showPassword ? (
+              <span
+                className="absolute text-primary right-2 top-2 cursor-pointer"
+                onClick={() => setShowPassword(false)}
+              >
+                <EyeOff size={20} />
+              </span>
+            ) : (
+              <span
+                className="absolute text-primary right-2 top-2 cursor-pointer"
+                onClick={() => setShowPassword(true)}
+              >
+                <Eye size={20} />
+              </span>
+            )}
+          </div>
         </div>
+        {/* <p className="text-center text-red-500">{errormsg}lakjsdflkajsdflk</p> */}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? <ButtonLoader /> : "Login"}
         </Button>
