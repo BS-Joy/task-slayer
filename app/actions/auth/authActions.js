@@ -41,7 +41,7 @@ export async function signup(formData) {
     password: formData.get("password"),
     options: {
       data: {
-        name: formData.get("name"),
+        full_name: formData.get("full_name"),
       },
     },
   };
@@ -57,4 +57,31 @@ export async function signup(formData) {
   revalidatePath("/", "layout");
   redirect("/");
   return resData;
+}
+
+export async function googleLogin() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: process.env.NEXT_PUBLIC_BASE_URL + "/auth/callback",
+    },
+  });
+
+  console.log(data);
+
+  if (data?.url) {
+    redirect(data?.url);
+  }
+
+  if (error) {
+    return {
+      message: error?.message,
+      status: error?.status,
+      isAuthError: true,
+    };
+  }
+
+  return data;
 }

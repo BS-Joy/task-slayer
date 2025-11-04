@@ -26,11 +26,9 @@ export default function ProfileModal({
   user,
   setUser,
 }) {
-  const [name, setName] = useState(user?.name || "not found");
+  const [name, setName] = useState(user?.full_name || "not found");
   const [email, setEmail] = useState(user?.email || "not found");
-  const [profileImageUrl, setProfileImageUrl] = useState(
-    user?.profile_image || ""
-  );
+  const [profileImageUrl, setProfileImageUrl] = useState(user?.picture || "");
   const [tempImageUrl, setTempImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUrlInput, setShowImageUrlInput] = useState(false);
@@ -42,7 +40,7 @@ export default function ProfileModal({
     const supabase = await createClient();
 
     const { data, error } = await supabase.auth.updateUser({
-      data: { name, profile_image: profileImageUrl },
+      data: { full_name: name, picture: profileImageUrl },
     });
 
     if (data?.user?.id) {

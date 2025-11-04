@@ -58,7 +58,7 @@ export default function Navbar({ userData }) {
   };
 
   const getInitials = () => {
-    return user?.user_metadata?.name
+    return user?.user_metadata?.full_name
       .split(" ")
       .map((n) => n[0])
       .join("")
@@ -85,7 +85,7 @@ export default function Navbar({ userData }) {
                     <Avatar className="h-8 w-8">
                       <AvatarImage
                         src={
-                          user?.user_metadata?.profile_image ||
+                          user?.user_metadata?.picture ||
                           "/placeholder.svg?height=32&width=32"
                         }
                         alt="PP"
