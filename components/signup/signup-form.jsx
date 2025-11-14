@@ -32,9 +32,18 @@ export function SignupForm({ className, ...props }) {
 
     const res = await signup(formData);
 
+    // console.log(res);
+
     if (res?.user?.id) {
       setLoading(false);
       redirect("/login");
+    } else if (res?.isAuthError) {
+      setLoading(false);
+      toast.error(
+        res?.status === 422
+          ? "You already have an account please login."
+          : res?.message || "Authentication error"
+      );
     }
   };
 

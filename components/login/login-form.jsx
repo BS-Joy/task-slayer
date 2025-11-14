@@ -28,7 +28,7 @@ export function LoginForm({ className, ...props }) {
 
     const res = await login(formData);
 
-    console.log("In login form page: ", res);
+    // console.log("In login form page: ", res);
 
     if (res?.user?.id) {
       setLoading(false);

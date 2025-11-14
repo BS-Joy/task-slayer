@@ -11,14 +11,18 @@ import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import { useTaskStore } from "@/lib/task-store";
 import AddTaskModal from "../task/add-task-modal";
+import { getAllTasks } from "@/app/actions/task/taskActions";
+import LoadingSpinner from "../LoadingSpinner";
 
 const HomeContainer = () => {
   const [date, setDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalType, setModalType] = useState("single");
+  // const [loading, setLoading] = useState(false);
 
-  const { initializeTasks } = useTaskStore();
+  const { initializeTasks, dbTasks, fetchTasksByDate, fetchLoading } =
+    useTaskStore();
 
   useEffect(() => {
     initializeTasks();
@@ -30,15 +34,28 @@ const HomeContainer = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, [initializeTasks]);
 
+  useEffect(() => {
+    fetchTasksByDate();
+  }, [fetchTasksByDate]);
+
   const handleAddTask = (type) => {
     setModalType(type);
     setIsAddModalOpen(true);
   };
+
+  if (fetchLoading) {
+    return (
+      <div className="mt-28">
+        <LoadingSpinner />
+      </div>
+    );
+  }
   return (
     <>
       <Header date={date} setDate={setDate} />
 
       <TaskList selectedDate={date} />
+      {/* <LoadingSpinner /> */}
 
       {!isMobile && (
         <div className="fixed bottom-6 right-6 flex flex-col gap-2">

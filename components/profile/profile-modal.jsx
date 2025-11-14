@@ -28,7 +28,9 @@ export default function ProfileModal({
 }) {
   const [name, setName] = useState(user?.full_name || "not found");
   const [email, setEmail] = useState(user?.email || "not found");
-  const [profileImageUrl, setProfileImageUrl] = useState(user?.picture || "");
+  const [profileImageUrl, setProfileImageUrl] = useState(
+    user?.picture?.replace(/"/g, "") || ""
+  );
   const [tempImageUrl, setTempImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUrlInput, setShowImageUrlInput] = useState(false);

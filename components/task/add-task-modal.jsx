@@ -31,6 +31,9 @@ import RichTextEditor from "@/components/rich-text-editor";
 import { useTaskStore } from "@/lib/task-store";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
+import { toast } from "sonner";
+import { createTask } from "@/app/actions/task/taskActions";
+import ButtonLoader from "../ButtonLoader";
 
 export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   const { addTask } = useTaskStore(); // Corrected: addTask is now destructured here
@@ -42,13 +45,14 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     description: "",
     priority: "medium",
     date: selectedDate,
-    timeStart: "09:00",
-    timeEnd: "10:00",
+    timeStart: "00:00",
+    timeEnd: "23:59",
     completed: false,
     isRepetitive: type === "repetitive", // Initial value based on prop
     repetitionEndDate: type === "repetitive" ? null : undefined, // Initial value based on prop
   });
   const [includeTime, setIncludeTime] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Update isRepetitive and repetitionEndDate when the 'type' prop changes
   useEffect(() => {
@@ -68,40 +72,55 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setLoading(true);
     // Validate form
     if (!newTask.title) {
-      alert("Please enter a task title");
+      toast.error("Please enter a task title");
       return;
     }
 
-    addTask({
-      ...newTask,
-      id: Date.now().toString(),
-      date: format(newTask.date, "yyyy-MM-dd"),
-      timeStart: includeTime ? newTask.timeStart : null,
-      timeEnd: includeTime ? newTask.timeEnd : null,
-      // Ensure repetitionEndDate is formatted correctly for storage, only if it's a repetitive task
-      repetitionEndDate:
-        newTask.isRepetitive && newTask.repetitionEndDate
-          ? format(newTask.repetitionEndDate, "yyyy-MM-dd")
-          : undefined,
-    });
+    const res = await createTask(newTask);
 
-    // Reset form and close modal
-    setNewTask({
-      title: "",
-      description: "",
-      priority: "medium",
-      date: selectedDate, // Reset to the currently selected date in the main view
-      timeStart: "09:00",
-      timeEnd: "10:00",
-      completed: false,
-      isRepetitive: type === "repetitive", // Reset based on current type prop
-      repetitionEndDate: type === "repetitive" ? null : undefined, // Reset based on current type prop
-    });
+    if (res?.error) {
+      setLoading(false);
+      console.log(res?.error?.message);
+      toast.error(res?.error?.message || "Failed to create task");
+      return;
+    }
+
+    if (res?.status === 201) {
+      setLoading(false);
+      toast.success("Task created successfully");
+    }
+
+    // addTask({
+    //   ...newTask,
+    //   id: Date.now().toString(),
+    //   date: format(newTask.date, "yyyy-MM-dd"),
+    //   timeStart: includeTime ? newTask.timeStart : null,
+    //   timeEnd: includeTime ? newTask.timeEnd : null,
+    //   // Ensure repetitionEndDate is formatted correctly for storage, only if it's a repetitive task
+    //   repetitionEndDate:
+    //     newTask.isRepetitive && newTask.repetitionEndDate
+    //       ? format(newTask.repetitionEndDate, "yyyy-MM-dd")
+    //       : undefined,
+    // });
+
+    // // Reset form and close modal
+    // setNewTask({
+    //   title: "",
+    //   description: "",
+    //   priority: "medium",
+    //   date: selectedDate, // Reset to the currently selected date in the main view
+    //   timeStart: "09:00",
+    //   timeEnd: "10:00",
+    //   completed: false,
+    //   isRepetitive: type === "repetitive", // Reset based on current type prop
+    //   repetitionEndDate: type === "repetitive" ? null : undefined, // Reset based on current type prop
+    // });
     setIncludeTime(false);
-    onClose();
+    // onClose();
   };
 
   return (
@@ -119,6 +138,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          {/* task title */}
           <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -129,6 +149,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
             />
           </div>
 
+          {/* task description */}
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <RichTextEditor
@@ -213,7 +234,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
               <div className="grid gap-2">
                 <Label htmlFor="timeStart">Start Time</Label>
                 <div className="flex items-center">
-                  <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
                   <Input
                     id="timeStart"
                     type="time"
@@ -226,7 +247,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
               <div className="grid gap-2">
                 <Label htmlFor="timeEnd">End Time</Label>
                 <div className="flex items-center">
-                  <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
                   <Input
                     id="timeEnd"
                     type="time"
@@ -286,7 +307,9 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Add Task</Button>
+          <Button onClick={handleSubmit}>
+            {loading ? <ButtonLoader /> : "Add Task"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

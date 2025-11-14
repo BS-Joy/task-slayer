@@ -10,7 +10,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, ListTodo, Plus } from "lucide-react";
-import Image from "next/image";
 import pagperSword from "@/public/swordpaper.png";
 
 const Header = ({ date, setDate }) => {

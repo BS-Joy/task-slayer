@@ -1,5 +1,5 @@
 import localFont from "next/font/local";
-import { Work_Sans } from "next/font/google";
+// import { Work_Sans } from "next/font/google";
 
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
@@ -9,7 +9,8 @@ import MobileNavbar from "@/components/layout/MobileNavbar";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-const workSans = Work_Sans({
+const workSans = localFont({
+  src: "../public/fonts/WorkSans-Regular.ttf",
   variable: "--font-work-sans",
   subsets: ["latin"],
   display: "swap",

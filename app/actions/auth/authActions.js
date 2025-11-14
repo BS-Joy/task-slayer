@@ -17,6 +17,8 @@ export async function login(formData) {
 
   const { data: resData, error } = await supabase.auth.signInWithPassword(data);
 
+  // console.log(error);
+
   if (error) {
     return {
       message: error?.message,
@@ -48,15 +50,20 @@ export async function signup(formData) {
 
   const { data: resData, error } = await supabase.auth.signUp(data);
 
-  console.log(resData);
+  // console.log(resData);
+  // console.log(error?.message);
 
   if (error) {
-    redirect("/error");
+    return {
+      message: error?.message,
+      status: error?.status,
+      isAuthError: true,
+    };
   }
 
   revalidatePath("/", "layout");
   redirect("/");
-  return resData;
+  // return resData;
 }
 
 export async function googleLogin() {
