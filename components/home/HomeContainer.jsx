@@ -25,23 +25,25 @@ const HomeContainer = () => {
     useTaskStore();
 
   useEffect(() => {
-    initializeTasks();
+    // initializeTasks();
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
-  }, [initializeTasks]);
+  }, []);
 
   useEffect(() => {
-    fetchTasksByDate();
-  }, [fetchTasksByDate]);
+    fetchTasksByDate(date);
+  }, [fetchTasksByDate, date]);
 
   const handleAddTask = (type) => {
     setModalType(type);
     setIsAddModalOpen(true);
   };
+
+  // console.log(fetchLoading);
 
   if (fetchLoading) {
     return (

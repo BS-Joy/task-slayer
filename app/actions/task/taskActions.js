@@ -21,11 +21,27 @@ export const createTask = async (taskData) => {
   return res;
 };
 
-export const getAllTasks = async () => {
+export const getAllTasks = async (date) => {
   const supaBase = await createClient();
 
+  const { data, error } = await supaBase.auth.getUser();
+
+  const userID = data?.user?.id;
+
+  if (error || !data) {
+    return {
+      error: {
+        message: "User not authenticated",
+      },
+    };
+  }
+
   // const res = await supaBase.from("tasks").select("*", {count: "exact"}); // to get count along with data
-  const res = await supaBase.from("tasks").select();
+  const res = await supaBase
+    .from("tasks")
+    .select()
+    .eq("user_id", userID)
+    .eq("date", date);
 
   // console.log(res);
 

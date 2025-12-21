@@ -10,12 +10,12 @@ import TaskItem from "./task-item";
 import TaskModal from "./task-modal";
 
 export default function TaskList({ selectedDate }) {
-  const { getTasksByDate } = useTaskStore();
+  const { getTasksByDate, fetchTasksByDate, dbTasks } = useTaskStore();
   const [viewTask, setViewTask] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
-  const tasks = getTasksByDate(formattedDate)
+  const tasks = dbTasks
     .slice() // create a shallow copy to avoid mutating store
     .sort((a, b) => {
       // Compare timeEnd as "HH:mm" strings
