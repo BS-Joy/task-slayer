@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useTaskStore } from "@/lib/task-store";
 import { useTheme } from "next-themes";
+import { updateTaskCompletion } from "@/app/actions/task/taskActions";
 
 export default function TaskItem({ task, onTaskClick }) {
   const { updateTask } = useTaskStore();
@@ -14,12 +15,8 @@ export default function TaskItem({ task, onTaskClick }) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
-  const handleCheckboxChange = (value) => {
-    setChecked(value);
-    updateTask({
-      ...task,
-      completed: value,
-    });
+  const handleCheckboxChange = async () => {
+    await updateTaskCompletion(task, checked);
   };
 
   const getPriorityColor = (priority) => {

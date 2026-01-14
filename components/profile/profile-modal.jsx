@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User, Mail, LogOut, Link2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,18 +28,22 @@ export default function ProfileModal({
 }) {
   const [name, setName] = useState(user?.full_name || "not found");
   const [email, setEmail] = useState(user?.email || "not found");
-  const [profileImageUrl, setProfileImageUrl] = useState(
-    user?.picture?.replace(/"/g, "") || ""
-  );
+  const [profileImageUrl, setProfileImageUrl] = useState("");
   const [tempImageUrl, setTempImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUrlInput, setShowImageUrlInput] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (user?.picture) {
+      setProfileImageUrl(user.picture.replace(/"/g, ""));
+    }
+  }, [user]);
+
   const handleSave = async () => {
     setLoading(true);
-    const supabase = await createClient();
+    const supabase = createClient();
 
     const { data, error } = await supabase.auth.updateUser({
       data: { full_name: name, picture: profileImageUrl },

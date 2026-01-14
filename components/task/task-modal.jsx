@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { CalendarIcon, Clock, AlertCircle, CalendarDays } from "lucide-react";
+import {
+  CalendarIcon,
+  Clock,
+  AlertCircle,
+  CalendarDays,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -361,6 +367,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
           ) : (
             <div className="flex flex-col-reverse md:flex-row justify-between w-full gap-2">
               <Button variant="destructive" onClick={handleDelete}>
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </Button>
               <div className="flex justify-between md:justify-normal gap-2 w-full md:w-auto">

@@ -15,6 +15,7 @@ export default function TaskList({ selectedDate }) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
+  // const tasks = getTasksByDate(formattedDate)
   const tasks = dbTasks
     .slice() // create a shallow copy to avoid mutating store
     .sort((a, b) => {

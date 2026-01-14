@@ -34,9 +34,10 @@ import { Checkbox } from "../ui/checkbox";
 import { toast } from "sonner";
 import { createTask } from "@/app/actions/task/taskActions";
 import ButtonLoader from "../ButtonLoader";
+import { useRouter } from "next/navigation";
 
 export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
-  const { addTask } = useTaskStore(); // Corrected: addTask is now destructured here
+  const { addTask, dbTasks } = useTaskStore(); // Corrected: addTask is now destructured here
 
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [repetitionPopoverOpen, setRepetitionPopoverOpen] = useState(false);
@@ -53,6 +54,8 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   });
   const [includeTime, setIncludeTime] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   // Update isRepetitive and repetitionEndDate when the 'type' prop changes
   useEffect(() => {
@@ -89,7 +92,9 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       return;
     }
 
-    if (res?.status === 201) {
+    if (res?.status === 201 && res?.data) {
+      // console.log(res);
+      addTask(res.data);
       setLoading(false);
       toast.success("Task created successfully");
     }
@@ -120,7 +125,8 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     //   repetitionEndDate: type === "repetitive" ? null : undefined, // Reset based on current type prop
     // });
     setIncludeTime(false);
-    // onClose();
+    onClose();
+    router.refresh();
   };
 
   return (

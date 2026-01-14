@@ -47,3 +47,18 @@ export const getAllTasks = async (date) => {
 
   return res;
 };
+
+export const updateTaskCompletion = async (task, status) => {
+  try {
+    const supaBase = await createClient();
+
+    const res = await supaBase
+      .from("tasks")
+      .update({ completed: !status })
+      .eq("id", task?.id);
+
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+};
