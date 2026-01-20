@@ -6,28 +6,33 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
 export async function login(formData) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
-
-  const { data: resData, error } = await supabase.auth.signInWithPassword(data);
-
-  // console.log(error);
-
-  if (error) {
-    return {
-      message: error?.message,
-      status: error?.status,
-      isAuthError: true,
+    // type-casting here for convenience
+    // in practice, you should validate your inputs
+    const data = {
+      email: formData.get("email"),
+      password: formData.get("password"),
     };
-  }
 
-  return resData;
+    const { data: resData, error } =
+      await supabase.auth.signInWithPassword(data);
+
+    // console.log(error);
+
+    if (error) {
+      return {
+        message: error?.message,
+        status: error?.status,
+        isAuthError: true,
+      };
+    }
+
+    return resData;
+  } catch (error) {
+    console.log(error);
+  }
 
   // revalidatePath("/", "layout");
   // redirect("/");

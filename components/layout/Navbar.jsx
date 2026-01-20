@@ -22,7 +22,7 @@ import { createClient } from "@/utils/supabase/client";
 import { id } from "date-fns/locale";
 
 export default function Navbar({ userData }) {
-  const [user, setUser] = useState(userData);
+  const [user, setUser] = useState(null);
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -42,7 +42,7 @@ export default function Navbar({ userData }) {
 
   const handleLogout = async () => {
     // In a real app, you would handle logout logic here
-    const supaBase = await createClient();
+    const supaBase = createClient();
     const { error } = await supaBase.auth.signOut();
     if (error) {
       toast.error(error.message);

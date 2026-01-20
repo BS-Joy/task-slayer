@@ -37,9 +37,12 @@ import RichTextEditor from "@/components/rich-text-editor";
 import { useTaskStore } from "@/lib/task-store";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { deleteTask } from "@/app/actions/task/taskActions";
+import ButtonLoader from "../ButtonLoader";
+import { useRouter } from "next/navigation";
 
-export default function TaskModal({ task, isOpen, onClose }) {
-  const { updateTask, deleteTask, rescheduleTask } = useTaskStore();
+export default function TaskModal({ task, isOpen, closeModal }) {
+  const { updateTask, rescheduleTask, deleteStateTask } = useTaskStore();
   const [editedTask, setEditedTask] = useState(() => {
     // Initialize with the task data.
     // For repetitive tasks, the 'date' in the modal should reflect the series start date (originalDate).
@@ -56,6 +59,9 @@ export default function TaskModal({ task, isOpen, onClose }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const handleSave = () => {
     updateTask({
@@ -70,19 +76,40 @@ export default function TaskModal({ task, isOpen, onClose }) {
     toast.success("Task updated successfully");
   };
 
-  const handleDelete = () => {
-    deleteTask(task.id);
-    onClose();
-    toast.success("Task deleted successfully");
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      const res = await deleteTask(task.id);
+
+      if (res?.error) {
+        toast.error("Failed to delete task.");
+        console.error("Error deleting task:", res.error);
+        return;
+      }
+
+      if (res?.status === 200 && res?.data) {
+        deleteStateTask(task.id);
+        toast.success("Task deleted successfully");
+        setLoading(false);
+        closeModal();
+        router.refresh();
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReschedule = () => {
     const newDateKey = format(rescheduleDate, "yyyy-MM-dd");
     rescheduleTask(task.id, newDateKey);
     setIsRescheduling(false);
-    onClose();
+    closeModal();
     toast.success(
-      `Task rescheduled to ${format(rescheduleDate, "MMMM d, yyyy")}`
+      `Task rescheduled to ${format(rescheduleDate, "MMMM d, yyyy")}`,
     );
   };
 
@@ -94,22 +121,22 @@ export default function TaskModal({ task, isOpen, onClose }) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={closeModal}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isRescheduling
               ? "Reschedule Task"
               : isEditing
-              ? "Edit Task"
-              : "Task Details"}
+                ? "Edit Task"
+                : "Task Details"}
           </DialogTitle>
           <DialogDescription>
             {isRescheduling
               ? "Select a new date for this task."
               : isEditing
-              ? "Make changes to your task here."
-              : "View your task details."}
+                ? "Make changes to your task here."
+                : "View your task details."}
           </DialogDescription>
         </DialogHeader>
 
@@ -216,7 +243,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
                       variant="outline"
                       className={cn(
                         "justify-start text-left font-normal",
-                        !editedTask.date && "text-muted-foreground"
+                        !editedTask.date && "text-muted-foreground",
                       )}
                       disabled={!isEditing}
                     >
@@ -280,7 +307,8 @@ export default function TaskModal({ task, isOpen, onClose }) {
                       variant="outline"
                       className={cn(
                         "justify-start text-left font-normal",
-                        !editedTask.repetitionEndDate && "text-muted-foreground"
+                        !editedTask.repetitionEndDate &&
+                          "text-muted-foreground",
                       )}
                       disabled={!isEditing}
                     >
@@ -338,7 +366,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
                             console.warn(
                               "Error parsing originalDueDate:",
                               editedTask.originalDueDate,
-                              error
+                              error,
                             );
                             return "a previous date";
                           }
@@ -366,9 +394,19 @@ export default function TaskModal({ task, isOpen, onClose }) {
             </>
           ) : (
             <div className="flex flex-col-reverse md:flex-row justify-between w-full gap-2">
-              <Button variant="destructive" onClick={handleDelete}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+              <Button
+                variant="destructive"
+                className={`${loading ? "" : ""}`}
+                onClick={handleDelete}
+              >
+                {loading ? (
+                  <ButtonLoader />
+                ) : (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </>
+                )}
               </Button>
               <div className="flex justify-between md:justify-normal gap-2 w-full md:w-auto">
                 <Button
@@ -378,7 +416,7 @@ export default function TaskModal({ task, isOpen, onClose }) {
                   <CalendarDays className="mr-2 h-4 w-4" />
                   Reschedule
                 </Button>
-                {/* <Button variant="outline" onClick={onClose}>
+                {/* <Button variant="outline" onClick={closeModal}>
                     Close
                   </Button> */}
                 <Button onClick={() => setIsEditing(true)}>Edit</Button>

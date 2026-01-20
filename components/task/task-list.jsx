@@ -51,7 +51,7 @@ export default function TaskList({ selectedDate }) {
         <TaskModal
           task={viewTask}
           isOpen={isTaskModalOpen}
-          onClose={() => setIsTaskModalOpen(false)}
+          closeModal={() => setIsTaskModalOpen(false)}
         />
       )}
     </div>

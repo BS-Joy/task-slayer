@@ -22,30 +22,32 @@ export const createTask = async (taskData) => {
 };
 
 export const getAllTasks = async (date) => {
-  const supaBase = await createClient();
+  try {
+    const supaBase = await createClient();
 
-  const { data, error } = await supaBase.auth.getUser();
+    const { data, error } = await supaBase.auth.getUser();
 
-  const userID = data?.user?.id;
+    const userID = data?.user?.id;
 
-  if (error || !data) {
-    return {
-      error: {
-        message: "User not authenticated",
-      },
-    };
+    if (error || !data) {
+      return {
+        error: {
+          message: "User not authenticated",
+        },
+      };
+    }
+
+    // const res = await supaBase.from("tasks").select("*", {count: "exact"}); // to get count along with data
+    const res = await supaBase
+      .from("tasks")
+      .select()
+      .eq("user_id", userID)
+      .eq("date", date);
+
+    return res;
+  } catch (error) {
+    console.log(error);
   }
-
-  // const res = await supaBase.from("tasks").select("*", {count: "exact"}); // to get count along with data
-  const res = await supaBase
-    .from("tasks")
-    .select()
-    .eq("user_id", userID)
-    .eq("date", date);
-
-  // console.log(res);
-
-  return res;
 };
 
 export const updateTaskCompletion = async (task, status) => {
@@ -55,9 +57,46 @@ export const updateTaskCompletion = async (task, status) => {
     const res = await supaBase
       .from("tasks")
       .update({ completed: !status })
-      .eq("id", task?.id);
+      .eq("id", task?.id)
+      .select()
+      .single();
 
-    console.log(res);
+    if (res?.error) {
+      console.log(res.error);
+      return res.error;
+    }
+
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteTask = async (taskId) => {
+  try {
+    const supaBase = await createClient();
+
+    const { data, error } = await supaBase.auth.getUser();
+
+    if (error || !data) {
+      return {
+        error: {
+          message: "User not authenticated",
+        },
+      };
+    }
+
+    const userID = data?.user?.id;
+
+    const res = await supaBase
+      .from("tasks")
+      .delete()
+      .eq("id", taskId)
+      .eq("user_id", userID)
+      .select()
+      .single();
+
+    return res;
   } catch (error) {
     console.log(error);
   }

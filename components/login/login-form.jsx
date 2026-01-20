@@ -35,6 +35,7 @@ export function LoginForm({ className, ...props }) {
       router.push("/");
     } else if (res?.isAuthError) {
       setLoading(false);
+      console.log(res);
       toast.error(res?.message || "Authentication error");
     }
   };

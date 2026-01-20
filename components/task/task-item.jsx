@@ -8,15 +8,38 @@ import { Badge } from "@/components/ui/badge";
 import { useTaskStore } from "@/lib/task-store";
 import { useTheme } from "next-themes";
 import { updateTaskCompletion } from "@/app/actions/task/taskActions";
+import { toast } from "sonner";
+import ButtonLoader from "../ButtonLoader";
 
 export default function TaskItem({ task, onTaskClick }) {
-  const { updateTask } = useTaskStore();
+  // const { updateTask } = useTaskStore();
   const [checked, setChecked] = useState(task.completed);
+  const [loading, setLoading] = useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
   const handleCheckboxChange = async () => {
-    await updateTaskCompletion(task, checked);
+    try {
+      setLoading(true);
+
+      const res = await updateTaskCompletion(task, checked);
+
+      if (res?.error) {
+        toast.error("Failed to update task status.");
+        console.error("Error updating task completion:", res.error);
+        return;
+      }
+
+      if (res?.status === 200 && res?.data) {
+        setChecked(res.data.completed);
+        toast.success("Task status updated.");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -53,7 +76,7 @@ export default function TaskItem({ task, onTaskClick }) {
     <div
       className={`border rounded-lg p-4 transition-all duration-200 hover:shadow-md task-item relative overflow-hidden ${
         checked ? "bg-muted" : "bg-card"
-      }`}
+      } ${loading ? "opacity-70 pointer-events-none" : ""}`}
     >
       <div className="flex items-center gap-3">
         <Checkbox
@@ -76,7 +99,7 @@ export default function TaskItem({ task, onTaskClick }) {
             </h3>
             <Badge
               className={`${getPriorityColor(
-                task.priority
+                task.priority,
               )} text-white absolute top-0 right-0 px-1 py-0 md:relative`}
             >
               <Flag className="mr-1 h-3 w-3" />
@@ -138,7 +161,7 @@ export default function TaskItem({ task, onTaskClick }) {
                       console.warn(
                         "Error parsing originalDueDate:",
                         task.originalDueDate,
-                        error
+                        error,
                       );
                       return "previous date";
                     }
