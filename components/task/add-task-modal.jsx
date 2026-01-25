@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -46,6 +46,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     description: "",
     priority: "medium",
     date: selectedDate,
+    timeIncluded: false,
     timeStart: "00:00",
     timeEnd: "23:59",
     completed: false,
@@ -54,6 +55,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   });
   const [includeTime, setIncludeTime] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({
+    title: false,
+    repetitionEndDate: false,
+  });
 
   const router = useRouter();
 
@@ -80,10 +85,29 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     // Validate form
     if (!newTask.title) {
       toast.error("Please enter a task title");
+      setError((prev) => ({ ...prev, title: true }));
+      setLoading(false);
       return;
     }
 
-    const res = await createTask(newTask);
+    if (type === "repetitive" && !newTask.repetitionEndDate) {
+      toast.error("Please select a repetition end date for repetitive task");
+      setError((prev) => ({
+        ...prev,
+        repetitionEndDate: true,
+      }));
+      setLoading(false);
+      return;
+    }
+
+    const taskObject = { ...newTask };
+
+    if (taskObject?.timeIncluded === false) {
+      taskObject.timeStart = null;
+      taskObject.timeEnd = null;
+    }
+
+    const res = await createTask(taskObject);
 
     if (res?.error) {
       setLoading(false);
@@ -93,7 +117,6 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     }
 
     if (res?.status === 201 && res?.data) {
-      // console.log(res);
       addTask(res.data);
       setLoading(false);
       toast.success("Task created successfully");
@@ -125,7 +148,23 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     //   repetitionEndDate: type === "repetitive" ? null : undefined, // Reset based on current type prop
     // });
     setIncludeTime(false);
+    setError({
+      title: false,
+      repetitionEndDate: false,
+    });
     onClose();
+    setNewTask({
+      title: "",
+      description: "",
+      priority: "medium",
+      date: selectedDate,
+      timeIncluded: false,
+      timeStart: "00:00",
+      timeEnd: "23:59",
+      completed: false,
+      isRepetitive: type === "repetitive", // Initial value based on prop
+      repetitionEndDate: type === "repetitive" ? null : undefined, // Initial value based on prop
+    });
     router.refresh();
   };
 
@@ -149,10 +188,18 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
+              className={`${error?.title ? "border-red-500" : ""}`}
+              required
               value={newTask.title}
-              onChange={(e) => handleChange("title", e.target.value)}
+              onChange={(e) => {
+                handleChange("title", e.target.value);
+                setError((prev) => ({ ...prev, title: false }));
+              }}
               placeholder="Enter task title"
             />
+            {/* {error?.title && (
+              <p className="text-red-500 text-sm">Please enter a task title</p>
+            )} */}
           </div>
 
           {/* task description */}
@@ -193,7 +240,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                     variant="outline"
                     className={cn(
                       "justify-start text-left font-normal",
-                      !newTask.date && "text-muted-foreground"
+                      !newTask.date && "text-muted-foreground",
                     )}
                     onClick={() => setDatePopoverOpen(true)}
                   >
@@ -225,7 +272,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
             <Checkbox
               id="includeTime"
               checked={includeTime}
-              onCheckedChange={setIncludeTime}
+              onCheckedChange={() => {
+                setIncludeTime(!includeTime);
+                handleChange("timeIncluded", !includeTime);
+              }}
             />
             <Label
               htmlFor="includeTime"
@@ -235,7 +285,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
             </Label>
           </div>
 
-          {includeTime && ( // Conditionally render time inputs
+          {includeTime && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="timeStart">Start Time</Label>
@@ -244,18 +294,21 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                   <Input
                     id="timeStart"
                     type="time"
+                    required
                     value={newTask.timeStart}
                     onChange={(e) => handleChange("timeStart", e.target.value)}
                   />
                 </div>
               </div>
 
+              {/* end time */}
               <div className="grid gap-2">
                 <Label htmlFor="timeEnd">End Time</Label>
                 <div className="flex items-center">
                   {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
                   <Input
                     id="timeEnd"
+                    required
                     type="time"
                     value={newTask.timeEnd}
                     onChange={(e) => handleChange("timeEnd", e.target.value)}
@@ -277,7 +330,8 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                     variant="outline"
                     className={cn(
                       "justify-start text-left font-normal",
-                      !newTask.repetitionEndDate && "text-muted-foreground"
+                      !newTask.repetitionEndDate && "text-muted-foreground",
+                      error?.repetitionEndDate ? "border-red-500" : "",
                     )}
                     onClick={() => setRepetitionPopoverOpen(true)}
                   >
@@ -289,6 +343,11 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                     )}
                   </Button>
                 </PopoverTrigger>
+                {/* {error?.repetitionEndDate && (
+                  <p className="text-red-500 text-sm">
+                    Please add repetition end date
+                  </p>
+                )} */}
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
@@ -300,6 +359,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                     onSelect={(date) => {
                       handleChange("repetitionEndDate", date);
                       if (date) setRepetitionPopoverOpen(false);
+                      setError((prev) => ({
+                        ...prev,
+                        repetitionEndDate: false,
+                      }));
                     }}
                     initialFocus
                   />

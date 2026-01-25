@@ -22,12 +22,13 @@ import { createClient } from "@/utils/supabase/client";
 import { id } from "date-fns/locale";
 
 export default function Navbar({ userData }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(userData);
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
+    // console.log(userData);
     setUser(userData);
   }, [userData]);
 
@@ -41,7 +42,6 @@ export default function Navbar({ userData }) {
   }, []);
 
   const handleLogout = async () => {
-    // In a real app, you would handle logout logic here
     const supaBase = createClient();
     const { error } = await supaBase.auth.signOut();
     if (error) {
@@ -83,10 +83,14 @@ export default function Navbar({ userData }) {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
+                      {/* {console.log(
+                        user?.user_metadata?.avatar_url ||
+                          user?.user_metadata?.picture,
+                      )} */}
                       <AvatarImage
                         src={
-                          user?.user_metadata?.picture ||
-                          "/placeholder.svg?height=32&width=32"
+                          user?.user_metadata?.avatar_url ||
+                          user?.user_metadata?.picture
                         }
                         alt="PP"
                       />

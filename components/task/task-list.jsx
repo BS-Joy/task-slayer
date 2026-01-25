@@ -42,13 +42,18 @@ export default function TaskList({ selectedDate }) {
       ) : (
         <div className="space-y-2">
           {tasks.map((task) => (
-            <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} />
+            <TaskItem
+              key={task.id}
+              task={task}
+              onTaskClick={() => handleTaskClick(task)}
+            />
           ))}
         </div>
       )}
 
       {viewTask && (
         <TaskModal
+          key={viewTask.id}
           task={viewTask}
           isOpen={isTaskModalOpen}
           closeModal={() => setIsTaskModalOpen(false)}

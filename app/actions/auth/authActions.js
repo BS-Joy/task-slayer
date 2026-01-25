@@ -81,8 +81,6 @@ export async function googleLogin() {
     },
   });
 
-  console.log(data);
-
   if (data?.url) {
     redirect(data?.url);
   }

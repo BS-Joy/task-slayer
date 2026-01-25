@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
 import {
   CalendarIcon,
@@ -40,6 +40,7 @@ import { cn } from "@/lib/utils";
 import { deleteTask } from "@/app/actions/task/taskActions";
 import ButtonLoader from "../ButtonLoader";
 import { useRouter } from "next/navigation";
+import DOMPurify from "dompurify";
 
 export default function TaskModal({ task, isOpen, closeModal }) {
   const { updateTask, rescheduleTask, deleteStateTask } = useTaskStore();
@@ -62,6 +63,18 @@ export default function TaskModal({ task, isOpen, closeModal }) {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+
+  // useEffect(() => {
+  //   if (!task) return;
+
+  //   setEditedTask({
+  //     ...task,
+  //     date: new Date(task.originalDate || task.date),
+  //     repetitionEndDate: task.repetitionEndDate
+  //       ? new Date(task.repetitionEndDate)
+  //       : null,
+  //   });
+  // }, [task]);
 
   const handleSave = () => {
     updateTask({
@@ -204,7 +217,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                     <div
                       className="prose prose-sm max-w-none dark:prose-invert"
                       dangerouslySetInnerHTML={{
-                        __html: editedTask.description,
+                        __html: DOMPurify.sanitize(editedTask.description),
                       }}
                     />
                   ) : (
@@ -268,35 +281,39 @@ export default function TaskModal({ task, isOpen, closeModal }) {
             </div>
 
             {/* time */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="timeStart">Start Time</Label>
-                <div className="flex items-center">
-                  {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
-                  <Input
-                    id="timeStart"
-                    type="time"
-                    value={editedTask.timeStart || ""}
-                    onChange={(e) => handleChange("timeStart", e.target.value)}
-                    disabled={!isEditing}
-                  />
+            {task?.timeIncluded || isEditing ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="timeStart">Start Time</Label>
+                  <div className="flex items-center">
+                    {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
+                    <Input
+                      id="timeStart"
+                      type="time"
+                      value={editedTask.timeStart || ""}
+                      onChange={(e) =>
+                        handleChange("timeStart", e.target.value)
+                      }
+                      disabled={!isEditing}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="timeEnd">End Time</Label>
-                <div className="flex items-center">
-                  {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
-                  <Input
-                    id="timeEnd"
-                    type="time"
-                    value={editedTask.timeEnd || ""}
-                    onChange={(e) => handleChange("timeEnd", e.target.value)}
-                    disabled={!isEditing}
-                  />
+                <div className="grid gap-2">
+                  <Label htmlFor="timeEnd">End Time</Label>
+                  <div className="flex items-center">
+                    {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
+                    <Input
+                      id="timeEnd"
+                      type="time"
+                      value={editedTask.timeEnd || ""}
+                      onChange={(e) => handleChange("timeEnd", e.target.value)}
+                      disabled={!isEditing}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : null}
 
             {editedTask.isRepetitive && (
               <div className="grid gap-2">
@@ -396,7 +413,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
             <div className="flex flex-col-reverse md:flex-row justify-between w-full gap-2">
               <Button
                 variant="destructive"
-                className={`${loading ? "" : ""}`}
+                disabled={loading}
                 onClick={handleDelete}
               >
                 {loading ? (

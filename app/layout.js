@@ -32,7 +32,6 @@ export default async function RootLayout({ children }) {
 
   const { data, error } = await supaBase.auth.getUser();
 
-  // console.dir(data);
   return (
     <html lang="en">
       <body

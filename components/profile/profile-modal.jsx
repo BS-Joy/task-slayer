@@ -61,9 +61,9 @@ export default function ProfileModal({
   };
 
   const handleCancel = () => {
-    // Reset to original values in a real app
+    console.log(user);
     setTempImageUrl(profileImageUrl);
-    setName(user?.name);
+    setName(user?.name || user?.full_name);
     setIsEditing(false);
     setShowImageUrlInput(false);
     setImageError(false);
@@ -114,12 +114,24 @@ export default function ProfileModal({
   };
 
   const getInitials = () => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+    if (!name.trim()) return "U";
+
+    const words = name.trim().split(/\s+/);
+
+    if (words.length === 1) {
+      return words[0][0].toUpperCase();
+    }
+
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
   };
+
+  // const getInitials = () => {
+  //   return name
+  //     .split(" ")
+  //     .map((n) => n[0])
+  //     .join("")
+  //     .toUpperCase();
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
