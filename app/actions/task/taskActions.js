@@ -42,8 +42,9 @@ export const getAllTasks = async (date) => {
       .from("tasks")
       .select()
       .eq("user_id", userID)
-      .eq("date", date);
-
+      .or(
+        `date.eq.${date},and(isRepetitive.eq.true,date.lte.${date},repetitionEndDate.gte.${date})`,
+      );
     return res;
   } catch (error) {
     console.log(error);
