@@ -19,7 +19,6 @@ import ThemeSwitcher from "@/components/theme-switcher";
 import ProfileModal from "../profile/profile-modal";
 import Logo from "../Logo";
 import { createClient } from "@/utils/supabase/client";
-import { id } from "date-fns/locale";
 
 export default function Navbar({ userData }) {
   const [user, setUser] = useState(userData);
@@ -29,7 +28,15 @@ export default function Navbar({ userData }) {
 
   useEffect(() => {
     // console.log(userData);
-    setUser(userData);
+    const supaBase = createClient();
+
+    const {
+      data: { subscription },
+    } = supaBase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+    // setUser(userData);
+    return () => subscription.unsubscribe();
   }, [userData]);
 
   useEffect(() => {
