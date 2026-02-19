@@ -97,14 +97,22 @@ export default function TaskItem({ task, onTaskClick }) {
             >
               {task.title}
             </h3>
-            <Badge
-              className={`${getPriorityColor(
-                task.priority,
-              )} text-white absolute top-0 right-0 px-1 py-0 md:relative`}
-            >
-              <Flag className="mr-1 h-3 w-3" />
-              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-            </Badge>
+            <div className="flex justify-between gap-2">
+              {task.isRepetitive && (
+                <Badge variant="outline" className="ml-2 text-xs">
+                  <span className="hidden md:inline">Repetitive</span>
+                  <Repeat />
+                </Badge>
+              )}
+              <Badge
+                className={`${getPriorityColor(
+                  task.priority,
+                )} text-white absolute top-0 right-0 px-1 py-0 md:relative`}
+              >
+                <Flag className="mr-1 h-3 w-3" />
+                {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+              </Badge>
+            </div>
           </div>
 
           {/* {task.description && (
@@ -128,12 +136,7 @@ export default function TaskItem({ task, onTaskClick }) {
                 ""
               )}
             </div>
-            {task.isRepetitive && (
-              <Badge variant="outline" className="ml-2 text-xs">
-                <span className="hidden md:inline">Repetitive</span>
-                <Repeat />
-              </Badge>
-            )}
+
             {task.rescheduled && task.originalDueDate && (
               <Badge
                 variant="outline"
