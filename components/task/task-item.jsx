@@ -1,19 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, set } from "date-fns";
 import { Clock, Flag, AlertCircle, Repeat, CalendarSync } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { useTaskStore } from "@/lib/task-store";
 import { useTheme } from "next-themes";
 import { updateTaskCompletion } from "@/app/actions/task/taskActions";
 import { toast } from "sonner";
-import ButtonLoader from "../ButtonLoader";
 
-export default function TaskItem({ task, onTaskClick }) {
-  // const { updateTask } = useTaskStore();
-  const [checked, setChecked] = useState(task.completed);
+export default function TaskItem({ task, onTaskClick, selectedDate }) {
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  const [checked, setChecked] = useState(
+    task.isRepetitive
+      ? task.completedOn.includes(selectedDate)
+      : task.completed,
+  );
   const [loading, setLoading] = useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -22,7 +25,7 @@ export default function TaskItem({ task, onTaskClick }) {
     try {
       setLoading(true);
 
-      const res = await updateTaskCompletion(task, checked);
+      const res = await updateTaskCompletion(task, checked, selectedDate);
 
       if (res?.error) {
         toast.error("Failed to update task status.");
@@ -31,7 +34,17 @@ export default function TaskItem({ task, onTaskClick }) {
       }
 
       if (res?.status === 200 && res?.data) {
-        setChecked(res.data.completed);
+        const updatedTask = res.data;
+
+        const newChecked = task.isRepetitive
+          ? updatedTask.completedOn?.includes(selectedDate)
+          : updatedTask.completed;
+
+        if (task.isRepetitive) {
+          task.completedOn = updatedTask.completedOn;
+        }
+
+        setChecked(!!newChecked);
         toast.success("Task status updated.");
       }
     } catch (error) {

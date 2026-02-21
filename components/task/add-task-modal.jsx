@@ -50,6 +50,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     timeStart: "00:00",
     timeEnd: "23:59",
     completed: false,
+    completedOn: type === "repetitive" ? [] : null,
     isRepetitive: type === "repetitive", // Initial value based on prop
     repetitionEndDate: type === "repetitive" ? null : undefined, // Initial value based on prop
   });
@@ -66,6 +67,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   useEffect(() => {
     setNewTask((prevTask) => ({
       ...prevTask,
+      completedOn: type === "repetitive" ? [] : null,
       isRepetitive: type === "repetitive",
       // Reset repetitionEndDate if type changes from single to repetitive or vice-versa
       repetitionEndDate:
@@ -100,7 +102,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       return;
     }
 
-    const taskObject = { ...newTask };
+    const taskObject = {
+      ...newTask,
+      repetitionEndDate: format(newTask.repetitionEndDate, "yyyy-MM-dd"),
+    };
 
     if (taskObject?.timeIncluded === false) {
       taskObject.timeStart = null;

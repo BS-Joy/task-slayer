@@ -45,6 +45,7 @@ export default function TaskList({ selectedDate }) {
             <TaskItem
               key={task.id}
               task={task}
+              selectedDate={formattedDate}
               onTaskClick={() => handleTaskClick(task)}
             />
           ))}

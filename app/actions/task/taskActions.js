@@ -1,8 +1,10 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { format } from "date-fns";
 
 export const createTask = async (taskData) => {
+  console.log("task Data: ", taskData);
   const supaBase = await createClient();
   const { data, error } = await supaBase.auth.getUser();
 
@@ -51,16 +53,53 @@ export const getAllTasks = async (date) => {
   }
 };
 
-export const updateTaskCompletion = async (task, status) => {
+export const updateTaskCompletion = async (
+  task,
+  status,
+  taskCompletionDate,
+) => {
   try {
     const supaBase = await createClient();
 
-    const res = await supaBase
-      .from("tasks")
-      .update({ completed: !status })
-      .eq("id", task?.id)
-      .select()
-      .single();
+    const { data, error } = await supaBase.auth.getUser();
+
+    if (error || !data) {
+      return {
+        error: {
+          message: "User not authenticated",
+        },
+      };
+    }
+
+    let res;
+
+    if (task.isRepetitive) {
+      // const today = format(new Date(), "yyyy-MM-dd");
+
+      if (!task.completedOn.includes(taskCompletionDate)) {
+        task.completedOn.push(taskCompletionDate);
+      } else {
+        task.completedOn = task.completedOn.filter(
+          (date) => date !== taskCompletionDate,
+        );
+      }
+
+      console.log(task);
+
+      res = await supaBase
+        .from("tasks")
+        .update({ completedOn: task.completedOn })
+        .eq("id", task?.id)
+        .select()
+        .single();
+    } else {
+      res = await supaBase
+        .from("tasks")
+        .update({ completed: !status })
+        .eq("id", task?.id)
+        .select()
+        .single();
+    }
 
     if (res?.error) {
       console.log(res.error);
