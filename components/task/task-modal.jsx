@@ -426,13 +426,15 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                 )}
               </Button>
               <div className="flex justify-between md:justify-normal gap-2 w-full md:w-auto">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsRescheduling(true)}
-                >
-                  <CalendarDays className="mr-2 h-4 w-4" />
-                  Reschedule
-                </Button>
+                {!task?.isRepetitive && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsRescheduling(true)}
+                  >
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Reschedule
+                  </Button>
+                )}
                 {/* <Button variant="outline" onClick={closeModal}>
                     Close
                   </Button> */}
