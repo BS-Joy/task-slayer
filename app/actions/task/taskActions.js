@@ -141,3 +141,36 @@ export const deleteTask = async (taskId) => {
     console.log(error);
   }
 };
+
+export const updateTaskInDB = async (task) => {
+  try {
+    const supaBase = await createClient();
+
+    const { data, error } = await supaBase.auth.getUser();
+
+    if (error || !data) {
+      return {
+        error: {
+          message: "User not authenticated",
+        },
+      };
+    }
+
+    const userID = data?.user?.id;
+
+    // console.log("UserId: ", userID);
+    // console.log("Task to update: ", task);
+
+    const res = await supaBase
+      .from("tasks")
+      .update({ ...task })
+      .eq("id", task?.id)
+      .eq("user_id", userID)
+      .select()
+      .single();
+
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};

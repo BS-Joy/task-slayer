@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { format, parseISO } from "date-fns";
+import { format, formatDate, parseISO } from "date-fns";
 import {
   CalendarIcon,
   Clock,
@@ -37,30 +37,31 @@ import RichTextEditor from "@/components/rich-text-editor";
 import { useTaskStore } from "@/lib/task-store";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { deleteTask } from "@/app/actions/task/taskActions";
+import { deleteTask, updateTaskInDB } from "@/app/actions/task/taskActions";
 import ButtonLoader from "../ButtonLoader";
 import { useRouter } from "next/navigation";
 import DOMPurify from "dompurify";
+import { Checkbox } from "../ui/checkbox";
 
 export default function TaskModal({ task, isOpen, closeModal }) {
   const { updateTask, rescheduleTask, deleteStateTask } = useTaskStore();
   const [editedTask, setEditedTask] = useState(() => {
-    // Initialize with the task data.
-    // For repetitive tasks, the 'date' in the modal should reflect the series start date (originalDate).
-    // For single tasks, it's just their date.
-    // Ensure date and repetitionEndDate are Date objects for the calendar component.
     return {
       ...task,
-      date: new Date(task.originalDate || task.date), // Use originalDate for repetitive tasks' series start
+      date: new Date(task.originalDate || task.date),
       repetitionEndDate: task.repetitionEndDate
         ? new Date(task.repetitionEndDate)
         : null,
     };
   });
+  const [includeTime, setIncludeTime] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({
+    includeTime: false,
+  });
 
   const router = useRouter();
 
@@ -76,16 +77,33 @@ export default function TaskModal({ task, isOpen, closeModal }) {
   //   });
   // }, [task]);
 
-  const handleSave = () => {
-    updateTask({
+  const handleSave = async () => {
+    setLoading(true);
+    if (editedTask?.timeIncluded && !editedTask.timeStart) {
+      setError({ includeTime: true });
+      toast.error("Please provide a start time or uncheck 'Include Time'");
+      setLoading(false);
+      return;
+    }
+    setError({ includeTime: false });
+
+    const newVersionTask = {
       ...editedTask,
-      // Ensure date and repetitionEndDate are formatted as strings for storage
       date: format(editedTask.date, "yyyy-MM-dd"),
-      repetitionEndDate: editedTask.repetitionEndDate
-        ? format(editedTask.repetitionEndDate, "yyyy-MM-dd")
-        : undefined,
-    });
+    };
+    const res = await updateTaskInDB(newVersionTask);
+
+    if (res?.error) {
+      setLoading(false);
+      console.log(res?.error?.message);
+      toast.error(res?.error?.message || "Failed to update task");
+      return;
+    }
+    // console.log("Edited task to be saved:", dbTasks);
+    updateTask(res?.data); // need fix here
+    setLoading(false);
     setIsEditing(false);
+
     toast.success("Task updated successfully");
   };
 
@@ -203,6 +221,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
               />
             </div>
 
+            {/* description */}
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
               {isEditing ? (
@@ -230,6 +249,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* priority */}
               <div className="grid gap-2">
                 <Label>Priority</Label>
                 <Select
@@ -248,46 +268,70 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                 </Select>
               </div>
 
-              <div className="grid gap-2">
-                <Label>Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "justify-start text-left font-normal",
-                        !editedTask.date && "text-muted-foreground",
-                      )}
-                      disabled={!isEditing}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {editedTask.date ? (
-                        format(editedTask.date, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={editedTask.date}
-                      onSelect={(date) => handleChange("date", date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              {/* date */}
+              {!isEditing && (
+                <div className="grid gap-2">
+                  <Label>Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "justify-start text-left font-normal",
+                          !editedTask.date && "text-muted-foreground",
+                        )}
+                        disabled={!isEditing}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {editedTask.date ? (
+                          format(editedTask.date, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={editedTask.date}
+                        onSelect={(date) => handleChange("date", date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
             </div>
 
+            {/* include time */}
+            {isEditing && (
+              <div className="flex items-center space-x-2 mt-2">
+                <Checkbox
+                  id="includeTime"
+                  checked={includeTime}
+                  onCheckedChange={() => {
+                    setIncludeTime(!includeTime);
+                    handleChange("timeIncluded", !includeTime);
+                  }}
+                />
+                <Label
+                  htmlFor="includeTime"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Include Time
+                </Label>
+              </div>
+            )}
+
             {/* time */}
-            {task?.timeIncluded || isEditing ? (
+            {includeTime && isEditing ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="timeStart">Start Time</Label>
-                  <div className="flex items-center">
+                  <div className={`flex items-center `}>
                     {/* <Clock className="mr-2 h-4 w-4 text-muted-foreground" /> */}
                     <Input
+                      className={`${error.includeTime ? "border border-red-500" : ""}`}
                       id="timeStart"
                       type="time"
                       value={editedTask.timeStart || ""}
@@ -406,7 +450,9 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleSave}>Save Changes</Button>
+                <Button onClick={handleSave}>
+                  {loading ? <ButtonLoader /> : "Save Changes"}
+                </Button>
               </div>
             </>
           ) : (
