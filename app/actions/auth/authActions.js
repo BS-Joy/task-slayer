@@ -32,6 +32,7 @@ export async function login(formData) {
     return resData;
   } catch (error) {
     console.log(error);
+    return "Server Error!";
   }
 
   // revalidatePath("/", "layout");

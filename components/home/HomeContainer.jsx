@@ -18,7 +18,7 @@ const HomeContainer = () => {
   const [date, setDate] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("single");
+  const [modalType, setModalType] = useState("daily");
   // const [loading, setLoading] = useState(false);
 
   const { initializeTasks, dbTasks, fetchTasksByDate, fetchLoading } =
@@ -72,8 +72,8 @@ const HomeContainer = () => {
             </PopoverTrigger>
             <PopoverContent className="w-48" align="end">
               <div className="flex flex-col gap-2">
-                <Button onClick={() => handleAddTask("single")}>
-                  Add Single Task
+                <Button onClick={() => handleAddTask("daily")}>
+                  Add Daily Task
                 </Button>
                 <Button onClick={() => handleAddTask("repetitive")}>
                   Add Repetitive Task

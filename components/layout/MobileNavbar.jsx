@@ -24,7 +24,7 @@ export default function MobileNavbar({ userData }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("single");
+  const [modalType, setModalType] = useState("daily");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -84,8 +84,8 @@ export default function MobileNavbar({ userData }) {
             </PopoverTrigger>
             <PopoverContent className="w-48" align="center">
               <div className="flex flex-col gap-2">
-                <Button onClick={() => handleAddTask("single")}>
-                  Add Single Task
+                <Button onClick={() => handleAddTask("Daily")}>
+                  Add Daily Task
                 </Button>
                 <Button onClick={() => handleAddTask("repetitive")}>
                   Add Repetitive Task

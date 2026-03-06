@@ -183,7 +183,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
 
               <div className="flex flex-col items-center space-y-4">
                 <Calendar
-                  mode="single"
+                  mode="daily"
                   selected={rescheduleDate}
                   onSelect={setRescheduleDate}
                   initialFocus
@@ -292,7 +292,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="single"
+                        mode="daily"
                         selected={editedTask.date}
                         onSelect={(date) => handleChange("date", date)}
                         initialFocus
@@ -383,7 +383,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      mode="single"
+                      mode="daily"
                       selected={
                         editedTask.repetitionEndDate
                           ? new Date(editedTask.repetitionEndDate)

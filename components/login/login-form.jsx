@@ -28,8 +28,6 @@ export function LoginForm({ className, ...props }) {
 
     const res = await login(formData);
 
-    // console.log("In login form page: ", res);
-
     if (res?.user?.id) {
       setLoading(false);
       router.push("/");

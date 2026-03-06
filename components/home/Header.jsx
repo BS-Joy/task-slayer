@@ -45,7 +45,7 @@ const Header = ({ date, setDate }) => {
             variant="outline"
             className={cn(
               "justify-start text-left font-normal w-full md:w-auto",
-              !date && "text-muted-foreground"
+              !date && "text-muted-foreground",
             )}
             onClick={() => setPopoverOpen(true)}
           >
@@ -55,7 +55,7 @@ const Header = ({ date, setDate }) => {
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">
           <Calendar
-            mode="single"
+            mode="daily"
             selected={date}
             onSelect={handleDateSelect}
             initialFocus

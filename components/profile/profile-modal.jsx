@@ -61,7 +61,7 @@ export default function ProfileModal({
   };
 
   const handleCancel = () => {
-    console.log(user);
+    // console.log(user);
     setTempImageUrl(profileImageUrl);
     setName(user?.name || user?.full_name);
     setIsEditing(false);

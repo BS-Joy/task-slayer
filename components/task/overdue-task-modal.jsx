@@ -101,8 +101,8 @@ export default function OverdueTasksModal({
     toast.success(
       `"${taskToReschedule.title}" rescheduled to ${format(
         selectedDate,
-        "MMMM d, yyyy"
-      )}`
+        "MMMM d, yyyy",
+      )}`,
     );
 
     // Reset state
@@ -153,7 +153,7 @@ export default function OverdueTasksModal({
         {isRescheduling ? (
           <div className="py-4">
             <h3 className="font-medium mb-2">
-              Reschedule "{taskToReschedule?.title}"
+              Reschedule &quot;{taskToReschedule?.title}&quot;
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               Select a new date for this task:
@@ -161,7 +161,7 @@ export default function OverdueTasksModal({
 
             <div className="flex flex-col items-center space-y-4">
               <Calendar
-                mode="single"
+                mode="daily"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 initialFocus

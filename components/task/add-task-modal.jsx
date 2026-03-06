@@ -69,7 +69,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       ...prevTask,
       completedOn: type === "repetitive" ? [] : null,
       isRepetitive: type === "repetitive",
-      // Reset repetitionEndDate if type changes from single to repetitive or vice-versa
+      // Reset repetitionEndDate if type changes from daily to repetitive or vice-versa
       repetitionEndDate:
         type === "repetitive" ? prevTask.repetitionEndDate || null : undefined,
     }));
@@ -104,7 +104,10 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
 
     const taskObject = {
       ...newTask,
-      repetitionEndDate: format(newTask.repetitionEndDate, "yyyy-MM-dd"),
+      repetitionEndDate:
+        type === "repetitive"
+          ? format(newTask.repetitionEndDate, "yyyy-MM-dd")
+          : null,
     };
 
     if (taskObject?.timeIncluded === false) {
@@ -259,7 +262,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    mode="single"
+                    mode="daily"
                     selected={newTask.date}
                     onSelect={(date) => {
                       handleChange("date", date);
@@ -355,7 +358,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                 )} */}
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    mode="single"
+                    mode="daily"
                     selected={
                       newTask.repetitionEndDate
                         ? new Date(newTask.repetitionEndDate)
