@@ -5,6 +5,27 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 
+export const checkAuth = async () => {
+  const supaBase = await createClient();
+
+  const { data, error } = await supaBase.auth.getUser();
+
+  if (error || !data) {
+    return {
+      error: {
+        message: "User not authenticated",
+      },
+      user: null,
+      supaBase,
+    };
+  }
+
+  return {
+    user: data?.user,
+    supaBase,
+  };
+};
+
 export async function login(formData) {
   try {
     const supabase = await createClient();

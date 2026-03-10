@@ -23,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { useTaskStore } from "@/lib/task-store";
 import { toast } from "sonner";
+import { formatDate } from "@/utils";
 
 export default function OverdueTasksModal({
   isOpen,
@@ -64,7 +65,7 @@ export default function OverdueTasksModal({
 
   // Handle rescheduling a task to today
   const handleRescheduleToday = (task) => {
-    const today = format(new Date(), "yyyy-MM-dd");
+    const today = formatDate(new Date());
     rescheduleTask(task.id, today);
 
     const remTasks = remainingTasks.filter((t) => t.id !== task.id);
@@ -91,7 +92,7 @@ export default function OverdueTasksModal({
   const handleConfirmReschedule = () => {
     if (!taskToReschedule) return;
 
-    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+    const formattedDate = formatDate(selectedDate);
     rescheduleTask(taskToReschedule.id, formattedDate);
 
     const remTasks = remainingTasks.filter((t) => t.id !== taskToReschedule.id);
@@ -99,10 +100,7 @@ export default function OverdueTasksModal({
     setRemainingTasks(remTasks);
 
     toast.success(
-      `"${taskToReschedule.title}" rescheduled to ${format(
-        selectedDate,
-        "MMMM d, yyyy",
-      )}`,
+      `"${taskToReschedule.title}" rescheduled to ${formatDate(selectedDate)}`,
     );
 
     // Reset state
@@ -161,14 +159,13 @@ export default function OverdueTasksModal({
 
             <div className="flex flex-col items-center space-y-4">
               <Calendar
-                mode="daily"
+                mode="single"
                 selected={selectedDate}
-                onSelect={setSelectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
                 initialFocus
                 disabled={(date) =>
                   date < new Date() &&
-                  format(date, "yyyy-MM-dd") !==
-                    format(new Date(), "yyyy-MM-dd")
+                  formatDate(date) !== formatDate(new Date())
                 }
               />
 

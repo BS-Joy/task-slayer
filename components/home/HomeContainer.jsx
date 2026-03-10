@@ -11,7 +11,6 @@ import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import { useTaskStore } from "@/lib/task-store";
 import AddTaskModal from "../task/add-task-modal";
-import { getAllTasks } from "@/app/actions/task/taskActions";
 import LoadingSpinner from "../LoadingSpinner";
 
 const HomeContainer = () => {
@@ -21,11 +20,9 @@ const HomeContainer = () => {
   const [modalType, setModalType] = useState("daily");
   // const [loading, setLoading] = useState(false);
 
-  const { initializeTasks, dbTasks, fetchTasksByDate, fetchLoading } =
-    useTaskStore();
+  const { fetchTasksByDate, fetchLoading } = useTaskStore();
 
   useEffect(() => {
-    // initializeTasks();
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };

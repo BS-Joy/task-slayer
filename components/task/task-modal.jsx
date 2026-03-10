@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { format, formatDate, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import {
   CalendarIcon,
   Clock,
@@ -37,14 +37,19 @@ import RichTextEditor from "@/components/rich-text-editor";
 import { useTaskStore } from "@/lib/task-store";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { deleteTask, updateTaskInDB } from "@/app/actions/task/taskActions";
+import {
+  deleteTask,
+  rescheduleTask,
+  updateTaskInDB,
+} from "@/app/actions/task/taskActions";
 import ButtonLoader from "../ButtonLoader";
 import { useRouter } from "next/navigation";
 import DOMPurify from "dompurify";
 import { Checkbox } from "../ui/checkbox";
+import { formatDate } from "@/utils";
 
 export default function TaskModal({ task, isOpen, closeModal }) {
-  const { updateTask, rescheduleTask, deleteStateTask } = useTaskStore();
+  const { updateTask, deleteStateTask } = useTaskStore();
   const [editedTask, setEditedTask] = useState(() => {
     return {
       ...task,
@@ -89,7 +94,7 @@ export default function TaskModal({ task, isOpen, closeModal }) {
 
     const newVersionTask = {
       ...editedTask,
-      date: format(editedTask.date, "yyyy-MM-dd"),
+      date: formatDate(editedTask.date),
     };
     const res = await updateTaskInDB(newVersionTask);
 
@@ -134,21 +139,31 @@ export default function TaskModal({ task, isOpen, closeModal }) {
     }
   };
 
-  const handleReschedule = () => {
-    const newDateKey = format(rescheduleDate, "yyyy-MM-dd");
-    rescheduleTask(task.id, newDateKey);
-    setIsRescheduling(false);
-    closeModal();
-    toast.success(
-      `Task rescheduled to ${format(rescheduleDate, "MMMM d, yyyy")}`,
-    );
-  };
-
   const handleChange = (field, value) => {
     setEditedTask({
       ...editedTask,
       [field]: value,
     });
+  };
+
+  const handleReschedule = async () => {
+    try {
+      setLoading(true);
+      const newDate = formatDate(rescheduleDate, "yyyy-MM-dd");
+      const res = await rescheduleTask(task, newDate);
+      if (res?.data?.id) {
+        setLoading(false);
+        deleteStateTask(res?.data?.id);
+        setIsRescheduling(false);
+        closeModal();
+        toast.success(
+          `Task rescheduled to ${format(rescheduleDate, "MMMM d, yyyy")}`,
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something wen wrong!");
+    }
   };
 
   return (
@@ -183,14 +198,13 @@ export default function TaskModal({ task, isOpen, closeModal }) {
 
               <div className="flex flex-col items-center space-y-4">
                 <Calendar
-                  mode="daily"
+                  mode="single"
                   selected={rescheduleDate}
-                  onSelect={setRescheduleDate}
+                  onSelect={(date) => date && setRescheduleDate(date)}
                   initialFocus
                   disabled={(date) =>
                     date < new Date() &&
-                    format(date, "yyyy-MM-dd") !==
-                      format(new Date(), "yyyy-MM-dd")
+                    formatDate(date) !== formatDate(new Date())
                   }
                 />
 
@@ -199,11 +213,20 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                     variant="outline"
                     className="flex-1 bg-transparent"
                     onClick={() => setIsRescheduling(false)}
+                    disabled={loading}
                   >
                     Cancel
                   </Button>
-                  <Button className="flex-1" onClick={handleReschedule}>
-                    Reschedule to {format(rescheduleDate, "MMM d")}
+                  <Button
+                    className="flex-1"
+                    onClick={handleReschedule}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <ButtonLoader />
+                    ) : (
+                      `Reschedule to ${format(rescheduleDate, "MMM d")}`
+                    )}
                   </Button>
                 </div>
               </div>
@@ -292,9 +315,9 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode="daily"
+                        mode="single"
                         selected={editedTask.date}
-                        onSelect={(date) => handleChange("date", date)}
+                        onSelect={(date) => date && handleChange("date", date)}
                         initialFocus
                       />
                     </PopoverContent>
@@ -383,14 +406,14 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      mode="daily"
+                      mode="single"
                       selected={
                         editedTask.repetitionEndDate
                           ? new Date(editedTask.repetitionEndDate)
                           : null
                       }
                       onSelect={(date) =>
-                        handleChange("repetitionEndDate", date)
+                        date && handleChange("repetitionEndDate", date)
                       } // Pass Date object directly
                       initialFocus
                     />

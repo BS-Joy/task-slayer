@@ -16,8 +16,10 @@ const Header = ({ date, setDate }) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleDateSelect = (selectedDate) => {
-    setDate(selectedDate);
-    if (selectedDate) setPopoverOpen(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      setPopoverOpen(false);
+    }
   };
 
   return (
@@ -55,7 +57,7 @@ const Header = ({ date, setDate }) => {
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">
           <Calendar
-            mode="daily"
+            mode="single"
             selected={date}
             onSelect={handleDateSelect}
             initialFocus

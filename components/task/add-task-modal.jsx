@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { createTask } from "@/app/actions/task/taskActions";
 import ButtonLoader from "../ButtonLoader";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/utils";
 
 export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
   const { addTask, dbTasks } = useTaskStore(); // Corrected: addTask is now destructured here
@@ -105,9 +106,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     const taskObject = {
       ...newTask,
       repetitionEndDate:
-        type === "repetitive"
-          ? format(newTask.repetitionEndDate, "yyyy-MM-dd")
-          : null,
+        type === "repetitive" ? formatDate(newTask.repetitionEndDate) : null,
     };
 
     if (taskObject?.timeIncluded === false) {
@@ -262,11 +261,13 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    mode="daily"
+                    mode="single"
                     selected={newTask.date}
                     onSelect={(date) => {
-                      handleChange("date", date);
-                      if (date) setDatePopoverOpen(false);
+                      if (date) {
+                        handleChange("date", date);
+                        setDatePopoverOpen(false);
+                      }
                     }}
                     initialFocus
                   />
@@ -358,15 +359,17 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
                 )} */}
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    mode="daily"
+                    mode="single"
                     selected={
                       newTask.repetitionEndDate
                         ? new Date(newTask.repetitionEndDate)
                         : null
                     }
                     onSelect={(date) => {
-                      handleChange("repetitionEndDate", date);
-                      if (date) setRepetitionPopoverOpen(false);
+                      if (date) {
+                        handleChange("repetitionEndDate", date);
+                        setRepetitionPopoverOpen(false);
+                      }
                       setError((prev) => ({
                         ...prev,
                         repetitionEndDate: false,

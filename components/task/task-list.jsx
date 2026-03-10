@@ -8,14 +8,14 @@ import { useTaskStore } from "@/lib/task-store";
 import { Card, CardContent } from "@/components/ui/card";
 import TaskItem from "./task-item";
 import TaskModal from "./task-modal";
+import { formatDate } from "@/utils";
 
 export default function TaskList({ selectedDate }) {
-  const { getTasksByDate, fetchTasksByDate, dbTasks } = useTaskStore();
+  const { fetchTasksByDate, dbTasks } = useTaskStore();
   const [viewTask, setViewTask] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  const formattedDate = format(selectedDate, "yyyy-MM-dd");
-  // const tasks = getTasksByDate(formattedDate)
+  const formattedDate = formatDate(selectedDate);
   const tasks = dbTasks
     .slice() // create a shallow copy to avoid mutating store
     .sort((a, b) => {

@@ -1,22 +1,15 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { format } from "date-fns";
+import { checkAuth } from "../auth/authActions";
 
 export const createTask = async (taskData) => {
-  console.log("task Data: ", taskData);
-  const supaBase = await createClient();
-  const { data, error } = await supaBase.auth.getUser();
+  const { user, supaBase, error } = await checkAuth();
 
-  if (error || !data) {
-    return {
-      error: {
-        message: "User not authenticated",
-      },
-    };
-  }
+  if (error) return { error };
 
-  const newTask = { ...taskData, user_id: data?.user?.id };
+  const userID = user?.id;
+
+  const newTask = { ...taskData, user_id: userID };
 
   const res = await supaBase.from("tasks").insert(newTask).select().single();
 
@@ -25,19 +18,11 @@ export const createTask = async (taskData) => {
 
 export const getAllTasks = async (date) => {
   try {
-    const supaBase = await createClient();
+    const { user, supaBase, error } = await checkAuth();
 
-    const { data, error } = await supaBase.auth.getUser();
+    if (error) return { error };
 
-    const userID = data?.user?.id;
-
-    if (error || !data) {
-      return {
-        error: {
-          message: "User not authenticated",
-        },
-      };
-    }
+    const userID = user?.id;
 
     // const res = await supaBase.from("tasks").select("*", {count: "exact"}); // to get count along with data
     const res = await supaBase
@@ -59,23 +44,15 @@ export const updateTaskCompletion = async (
   taskCompletionDate,
 ) => {
   try {
-    const supaBase = await createClient();
+    const { user, supaBase, error } = await checkAuth();
 
-    const { data, error } = await supaBase.auth.getUser();
+    if (error) return { error };
 
-    if (error || !data) {
-      return {
-        error: {
-          message: "User not authenticated",
-        },
-      };
-    }
+    const userID = user?.id;
 
     let res;
 
     if (task.isRepetitive) {
-      // const today = format(new Date(), "yyyy-MM-dd");
-
       if (!task.completedOn.includes(taskCompletionDate)) {
         task.completedOn.push(taskCompletionDate);
       } else {
@@ -114,19 +91,11 @@ export const updateTaskCompletion = async (
 
 export const deleteTask = async (taskId) => {
   try {
-    const supaBase = await createClient();
+    const { user, supaBase, error } = await checkAuth();
 
-    const { data, error } = await supaBase.auth.getUser();
+    if (error) return { error };
 
-    if (error || !data) {
-      return {
-        error: {
-          message: "User not authenticated",
-        },
-      };
-    }
-
-    const userID = data?.user?.id;
+    const userID = user?.id;
 
     const res = await supaBase
       .from("tasks")
@@ -144,19 +113,11 @@ export const deleteTask = async (taskId) => {
 
 export const updateTaskInDB = async (task) => {
   try {
-    const supaBase = await createClient();
+    const { user, supaBase, error } = await checkAuth();
 
-    const { data, error } = await supaBase.auth.getUser();
+    if (error) return { error };
 
-    if (error || !data) {
-      return {
-        error: {
-          message: "User not authenticated",
-        },
-      };
-    }
-
-    const userID = data?.user?.id;
+    const userID = user?.id;
 
     // console.log("UserId: ", userID);
     // console.log("Task to update: ", task);
@@ -172,5 +133,33 @@ export const updateTaskInDB = async (task) => {
     return res;
   } catch (error) {
     console.log(error);
+  }
+};
+
+// reschedule a task
+export const rescheduleTask = async (task, newDate) => {
+  try {
+    const { user, supaBase, error } = await checkAuth();
+
+    if (error) return { error };
+
+    const userID = user?.id;
+
+    const res = await supaBase
+      .from("tasks")
+      .update({ date: newDate })
+      .eq("id", task?.id)
+      .eq("user_id", userID)
+      .select()
+      .single();
+
+    return res;
+  } catch (err) {
+    console.log(err);
+    return {
+      error: {
+        message: "Server error!",
+      },
+    };
   }
 };

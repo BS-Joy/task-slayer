@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { useTheme } from "next-themes";
 import { updateTaskCompletion } from "@/app/actions/task/taskActions";
 import { toast } from "sonner";
+import { formatDate } from "@/utils";
 
 export default function TaskItem({ task, onTaskClick, selectedDate }) {
-  const today = format(new Date(), "yyyy-MM-dd");
+  // const today = formatDate(new Date());
 
   const [checked, setChecked] = useState(
     task.isRepetitive
