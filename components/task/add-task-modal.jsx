@@ -103,7 +103,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       return;
     }
 
-    const taskObject = {
+    let taskObject = {
       ...newTask,
       repetitionEndDate:
         type === "repetitive" ? formatDate(newTask.repetitionEndDate) : null,
@@ -113,6 +113,8 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
       taskObject.timeStart = null;
       taskObject.timeEnd = null;
     }
+
+    taskObject = { ...taskObject, date: formatDate(taskObject.date) };
 
     const res = await createTask(taskObject);
 
@@ -124,7 +126,9 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     }
 
     if (res?.status === 201 && res?.data) {
-      addTask(res.data);
+      if (res?.data?.date === formatDate(selectedDate)) {
+        addTask(res.data);
+      }
       setLoading(false);
       toast.success("Task created successfully");
     }
