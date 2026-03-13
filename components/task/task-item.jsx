@@ -1,17 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { format, parseISO, set } from "date-fns";
-import { Clock, Flag, AlertCircle, Repeat, CalendarSync } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import {
+  Clock,
+  Flag,
+  AlertCircle,
+  Repeat,
+  CalendarSync,
+  GripVertical,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "next-themes";
 import { updateTaskCompletion } from "@/app/actions/task/taskActions";
 import { toast } from "sonner";
-import { formatDate } from "@/utils";
+import { getPriorityColor } from "@/utils";
+import { useSortable } from "@dnd-kit/react/sortable";
 
-export default function TaskItem({ task, onTaskClick, selectedDate }) {
-  // const today = formatDate(new Date());
+export default function TaskItem({ task, onTaskClick, selectedDate, index }) {
+  const { ref, handleRef } = useSortable({ id: task?.id, index });
 
   const [checked, setChecked] = useState(
     task.isRepetitive
@@ -56,27 +64,6 @@ export default function TaskItem({ task, onTaskClick, selectedDate }) {
     }
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "high":
-        return isDark
-          ? "bg-red-700 hover:bg-red-600"
-          : "bg-red-500 hover:bg-red-600";
-      case "medium":
-        return isDark
-          ? "bg-yellow-600 hover:bg-yellow-500"
-          : "bg-yellow-500 hover:bg-yellow-600";
-      case "low":
-        return isDark
-          ? "bg-green-700 hover:bg-green-600"
-          : "bg-green-500 hover:bg-green-600";
-      default:
-        return isDark
-          ? "bg-slate-700 hover:bg-slate-600"
-          : "bg-slate-500 hover:bg-slate-600";
-    }
-  };
-
   // Function to strip HTML tags and get plain text for preview
   const getPlainTextPreview = (html) => {
     if (!html) return "";
@@ -88,11 +75,12 @@ export default function TaskItem({ task, onTaskClick, selectedDate }) {
 
   return (
     <div
-      className={`border rounded-lg p-4 transition-all duration-200 hover:shadow-md task-item relative overflow-hidden ${
+      className={`border rounded-lg relative overflow-hidden pr-2 flex justify-between items-center ${
         checked ? "bg-muted" : "bg-card"
       } ${loading ? "opacity-70 pointer-events-none" : ""}`}
+      ref={ref}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center w-full p-4 gap-3">
         <Checkbox
           checked={checked}
           onCheckedChange={handleCheckboxChange}
@@ -121,6 +109,7 @@ export default function TaskItem({ task, onTaskClick, selectedDate }) {
               <Badge
                 className={`${getPriorityColor(
                   task.priority,
+                  isDark,
                 )} text-white absolute top-0 right-0 px-1 py-0 md:relative`}
               >
                 <Flag className="mr-1 h-3 w-3" />
@@ -188,6 +177,13 @@ export default function TaskItem({ task, onTaskClick, selectedDate }) {
             )}
           </div>
         </div>
+      </div>
+
+      <div
+        ref={handleRef}
+        className="cursor-grab hover:bg-muted p-2 rounded-lg transition-colors duration-500"
+      >
+        <GripVertical />
       </div>
     </div>
   );

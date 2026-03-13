@@ -1,15 +1,24 @@
 "use server";
 
+import { formatDate } from "@/utils";
 import { checkAuth } from "../auth/authActions";
 
-export const createTask = async (taskData) => {
+export const createTask = async (taskData, selectedDate, allTasks) => {
   const { user, supaBase, error } = await checkAuth();
 
   if (error) return { error };
 
   const userID = user?.id;
 
-  const newTask = { ...taskData, user_id: userID };
+  let newTask = { ...taskData, user_id: userID };
+
+  if (taskData?.date === formatDate(selectedDate)) {
+    newTask = { ...newTask, order: allTasks.length + 1 };
+  } else {
+    const newTaskDate = newTask.date;
+    const result = await getAllTasks(newTaskDate);
+    newTask = { ...newTask, order: result.data?.length + 1 };
+  }
 
   const res = await supaBase.from("tasks").insert(newTask).select().single();
 
@@ -161,5 +170,32 @@ export const rescheduleTask = async (task, newDate) => {
         message: "Server error!",
       },
     };
+  }
+};
+
+// re-arrange tasks
+export const reArrangeTasks = async (updatedTasks) => {
+  try {
+    const { user, supaBase, error } = await checkAuth();
+
+    if (error) return { error };
+
+    const userID = user?.id;
+
+    const res = await Promise.all(
+      updatedTasks.map(async (task) => {
+        const result = await supaBase
+          .from("tasks")
+          .update({ order: task.order })
+          .eq("id", task.id)
+          .eq("user_id", userID)
+          .select()
+          .single();
+        return result.data;
+      }),
+    );
+    return res;
+  } catch (err) {
+    throw new Error(err);
   }
 };

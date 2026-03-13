@@ -54,6 +54,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
     completedOn: type === "repetitive" ? [] : null,
     isRepetitive: type === "repetitive", // Initial value based on prop
     repetitionEndDate: type === "repetitive" ? null : undefined, // Initial value based on prop
+    order: 0,
   });
   const [includeTime, setIncludeTime] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -116,7 +117,7 @@ export default function AddTaskModal({ isOpen, onClose, type, selectedDate }) {
 
     taskObject = { ...taskObject, date: formatDate(taskObject.date) };
 
-    const res = await createTask(taskObject);
+    const res = await createTask(taskObject, selectedDate, dbTasks);
 
     if (res?.error) {
       setLoading(false);
