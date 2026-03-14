@@ -113,7 +113,7 @@ export default function MobileNavbar({ userData }) {
       />
 
       <ProfileModal
-        user={{ id: user?.id, ...user?.user_metadata }}
+        user={user}
         setUser={setUser}
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}

@@ -45,11 +45,15 @@ export default async function RootLayout({ children }) {
           storageKey="todos-theme-preference"
         >
           <div className="relative min-h-screen flex flex-col">
-            <Navbar userData={data?.user} />
+            <Navbar
+              userData={{ id: data?.user?.id, ...data?.user?.user_metadata }}
+            />
             <div className="md:pb-0 container mx-auto justify-center px-4">
               {children}
             </div>
-            <MobileNavbar userData={data?.user} />
+            <MobileNavbar
+              userData={{ id: data?.user?.id, ...data?.user?.user_metadata }}
+            />
           </div>
           <Toaster richColors position="top-center" />
         </ThemeProvider>

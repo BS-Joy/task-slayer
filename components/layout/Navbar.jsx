@@ -27,13 +27,12 @@ export default function Navbar({ userData }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
-    // console.log(userData);
     const supaBase = createClient();
 
     const {
       data: { subscription },
     } = supaBase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+      setUser(session?.user?.user_metadata || null);
     });
     // setUser(userData);
     return () => subscription.unsubscribe();
@@ -65,7 +64,9 @@ export default function Navbar({ userData }) {
   };
 
   const getInitials = () => {
-    return user?.user_metadata?.full_name
+    const name = user?.full_name;
+    if (!name) return "U";
+    return name
       .split(" ")
       .map((n) => n[0])
       .join("")
@@ -91,14 +92,11 @@ export default function Navbar({ userData }) {
                   >
                     <Avatar className="h-8 w-8">
                       {/* {console.log(
-                        user?.user_metadata?.avatar_url ||
-                          user?.user_metadata?.picture,
+                        user?.avatar_url ||
+                          user?.picture,
                       )} */}
                       <AvatarImage
-                        src={
-                          user?.user_metadata?.avatar_url ||
-                          user?.user_metadata?.picture
-                        }
+                        src={user?.avatar_url || user?.picture}
                         alt="PP"
                       />
                       <AvatarFallback>{getInitials()}</AvatarFallback>
@@ -130,7 +128,7 @@ export default function Navbar({ userData }) {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         onLogout={handleLogout}
-        user={{ id: user?.id, ...user?.user_metadata }}
+        user={user}
         setUser={setUser}
       />
     </>

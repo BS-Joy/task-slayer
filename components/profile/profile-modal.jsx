@@ -36,8 +36,10 @@ export default function ProfileModal({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user?.picture) {
-      setProfileImageUrl(user.picture.replace(/"/g, ""));
+    if (user) {
+      setProfileImageUrl(user?.picture?.replace(/"/g, ""));
+      setName(user?.full_name || "");
+      setEmail(user?.email || "");
     }
   }, [user]);
 
@@ -303,7 +305,7 @@ export default function ProfileModal({
                 onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
+                Log Out
               </Button>
               <Button className="flex-1" onClick={() => setIsEditing(true)}>
                 Edit Profile
