@@ -32,7 +32,9 @@ export default function Navbar({ userData }) {
     const {
       data: { subscription },
     } = supaBase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user?.user_metadata || null);
+      setUser(
+        { id: session?.user?.id, ...session?.user?.user_metadata } || null,
+      );
     });
     // setUser(userData);
     return () => subscription.unsubscribe();
