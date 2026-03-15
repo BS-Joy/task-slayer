@@ -2,19 +2,19 @@ export default function manifest() {
   return {
     name: "Task Slayer",
     short_name: "TSL",
-    description: "Slay your tasks",
+    description: "Slay your tasks with Task Slayer",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#000000",
+    background_color: "#e4c090",
+    theme_color: "#f8f4ee",
     icons: [
       {
-        src: "/icon-192x192.png",
+        src: "/logo 192.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "/icon-512x512.png",
+        src: "/logo 512.png",
         sizes: "512x512",
         type: "image/png",
       },

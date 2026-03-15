@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import MobileNavbar from "@/components/layout/MobileNavbar";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const workSans = localFont({
   src: "../public/fonts/WorkSans-Regular.ttf",
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }) {
       <body
         className={` ${trajanPro.variable} ${workSans.variable} font-work-sans antialiased`}
       >
+        <ServiceWorkerRegister />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
