@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CalendarDays,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -507,7 +508,10 @@ export default function TaskModal({ task, isOpen, closeModal }) {
                 {/* <Button variant="outline" onClick={closeModal}>
                     Close
                   </Button> */}
-                <Button onClick={() => setIsEditing(true)}>Edit</Button>
+                <Button onClick={() => setIsEditing(true)}>
+                  <Pencil className="mr-1" />
+                  Edit
+                </Button>
               </div>
             </div>
           )}
