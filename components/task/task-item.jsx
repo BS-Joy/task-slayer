@@ -65,13 +65,13 @@ export default function TaskItem({ task, onTaskClick, selectedDate, index }) {
   };
 
   // Function to strip HTML tags and get plain text for preview
-  const getPlainTextPreview = (html) => {
-    if (!html) return "";
-    const tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    const text = tmp.textContent || tmp.innerText || "";
-    return text.length > 100 ? text.substring(0, 100) + "..." : text;
-  };
+  // const getPlainTextPreview = (html) => {
+  //   if (!html) return "";
+  //   const tmp = document.createElement("div");
+  //   tmp.innerHTML = html;
+  //   const text = tmp.textContent || tmp.innerText || "";
+  //   return text.length > 100 ? text.substring(0, 100) + "..." : text;
+  // };
 
   return (
     <div
@@ -183,7 +183,7 @@ export default function TaskItem({ task, onTaskClick, selectedDate, index }) {
         ref={handleRef}
         className="cursor-grab hover:bg-muted p-2 rounded-lg transition-colors duration-500"
       >
-        <GripVertical />
+        <GripVertical color="#B3AEA6" />
       </div>
     </div>
   );

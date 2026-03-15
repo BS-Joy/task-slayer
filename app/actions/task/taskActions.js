@@ -4,25 +4,29 @@ import { formatDate } from "@/utils";
 import { checkAuth } from "../auth/authActions";
 
 export const createTask = async (taskData, selectedDate, allTasks) => {
-  const { user, supaBase, error } = await checkAuth();
+  try {
+    const { user, supaBase, error } = await checkAuth();
 
-  if (error) return { error };
+    if (error) return { error };
 
-  const userID = user?.id;
+    const userID = user?.id;
 
-  let newTask = { ...taskData, user_id: userID };
+    let newTask = { ...taskData, user_id: userID };
 
-  if (taskData?.date === formatDate(selectedDate)) {
-    newTask = { ...newTask, order: allTasks.length + 1 };
-  } else {
-    const newTaskDate = newTask.date;
-    const result = await getAllTasks(newTaskDate);
-    newTask = { ...newTask, order: result.data?.length + 1 };
+    if (taskData?.date === formatDate(selectedDate)) {
+      newTask = { ...newTask, order: allTasks.length + 1 };
+    } else {
+      const newTaskDate = newTask.date;
+      const result = await getAllTasks(newTaskDate);
+      newTask = { ...newTask, order: result.data?.length + 1 };
+    }
+
+    const res = await supaBase.from("tasks").insert(newTask).select().single();
+
+    return res;
+  } catch (err) {
+    throw new Error(err);
   }
-
-  const res = await supaBase.from("tasks").insert(newTask).select().single();
-
-  return res;
 };
 
 export const getAllTasks = async (date) => {

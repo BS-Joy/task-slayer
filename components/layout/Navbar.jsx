@@ -85,7 +85,7 @@ export default function Navbar({ userData }) {
           <Logo />
           <div className="ml-auto flex items-center space-x-4">
             <ThemeSwitcher variant="ghost" />
-            {user ? (
+            {user?.id ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
